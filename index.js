@@ -1,21 +1,21 @@
-const webServer = require("./services/web-server.js");
-const database = require("./services/database.js");
-const dbConfig = require("./config/database.js");
+const webServer = require("./src/services/web-server");
+const database = require("./src/services/database");
+const config = require("./src/config");
 const defaultThreadPoolSize = 4;
 
 // Increase thread pool size by poolMax
 // !!! Note: On Windows this won't have an effect. Instead the variable must be set before Node.js is started !!!
-process.env.UV_THREADPOOL_SIZE =
-  dbConfig.hrPool.poolMax + defaultThreadPoolSize;
+process.env.UV_THREADPOOL_SIZE = config.ORACLE_POOLMAX + defaultThreadPoolSize;
 
 async function startup() {
   console.log("Starting application");
 
   try {
-    console.log("Initializing database module");
+    console.log("Initializing oracle database module");
 
     await database.initialize();
   } catch (err) {
+    console.log("object");
     console.error(err);
 
     process.exit(1); // Non-zero failure code

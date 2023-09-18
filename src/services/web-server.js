@@ -1,9 +1,15 @@
 const http = require("http");
+
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
-const webServerConfig = require("../config/web-server.js");
-const router = require("./router.js");
-var cors = require("cors");
+const cors = require("cors");
+
+require("dotenv").config();
+const port = process.env.PORT;
+const config = require("../config");
+
+global.__basedir = __dirname;
 
 let httpServer;
 
@@ -11,26 +17,24 @@ function initialize() {
   return new Promise((resolve, reject) => {
     const app = express();
     httpServer = http.createServer(app);
-    app.use(cors());
-    // Combines logging info from request and response
-    app.use(morgan("combined"));
+    app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    // Parse incoming JSON requests and revive JSON.
-    app.use(
-      express.json({
-        reviver: reviveJson,
-      })
-    );
+    app.use(morgan("dev"));
 
+    app.use(cookieParser());
+    app.use(morgan("combined"));
+    app.use(cors(config.corsOptions));
+    app.use(express.json({ reviver: reviveJson }));
     // Mount the router at /api so all its routes start with /api
-    app.use("/api/v1", router);
+    //app.use("/api/v1", router);
 
+    app.use("/uploads", express.static("uploads"));
+
+    require("../routes")(app);
     httpServer
-      .listen(webServerConfig.port)
+      .listen(port)
       .on("listening", () => {
-        console.log(
-          `Web server listening on localhost:${webServerConfig.port}`
-        );
+        console.log(`Web server listening on localhost:${port}`);
 
         resolve();
       })
