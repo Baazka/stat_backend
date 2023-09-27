@@ -69,7 +69,7 @@ module.exports = {
           req.body.Team?.forEach((element) => {
             team.push({
               P_ID: element.ID != null ? parseInt(element.ID) : null,
-              P_STAT_AUDIT_ID: CheckNullInt(req.body.STAT_AUDIT_ID),
+              P_STAT_AUDIT_ID: CheckNullInt(element.STAT_AUDIT_ID),
               P_AUDITOR_ID: CheckNullInt(element.AUDITOR_ID),
               P_ROLE_ID: CheckNullInt(element.ROLE_ID),
               P_IS_ACTIVE: parseInt(element.IS_ACTIVE),
