@@ -108,21 +108,19 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
-  async getStatisticPlan(req,res){
+  async getStatisticPlan(req, res) {
     try {
       let params = {};
       console.log(req.body);
-      if(req.body.STAT_ID === undefined || req.body.STAT_ID ===null)
-      return res.send("STAT_ID ilgeenuu");
+      if (req.body.STAT_ID === undefined || req.body.STAT_ID === null)
+        return res.send("STAT_ID ilgeenuu");
 
       params.STAT_ID = parseInt(req.body.STAT_ID, 10);
-      
 
       let ListQuery = `SELECT ID, PERIOD_ID, DEPARTMENT_ID, DOCUMENT_ID, CONFIRM_DATE, STATUS, IS_ACTIVE, CREATED_BY, CREATED_DATE 
       FROM AUD_STAT.STAT_AUDIT
       WHERE ID = :STAT_ID`;
 
-      
       const result = await OracleDB.simpleExecute(ListQuery, params);
 
       let team_query = `SELECT ID,
@@ -135,17 +133,19 @@ module.exports = {
       su.USER_NAME 
       FROM AUD_STAT.STAT_AUDIT_TEAM sat 
       INNER JOIN AUD_REG."SYSTEM_USER" su ON su.USER_ID = sat.AUDITOR_ID 
-      WHERE STAT_AUDIT_ID = :STAT_ID`
+      WHERE STAT_AUDIT_ID = :STAT_ID`;
 
       const team_result = await OracleDB.simpleExecute(team_query, params);
-      if(result.rows !== undefined && result.rows.length>0)
-          return res.send( { Audit: result.rows[0], Team:team_result.rows,CREATED_BY:result.rows[0].CREATED_BY});
-
-
+      if (result.rows !== undefined && result.rows.length > 0)
+        return res.send({
+          Audit: result.rows[0],
+          Team: team_result.rows,
+          CREATED_BY: result.rows[0].CREATED_BY,
+        });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
-  }
+  },
   async checkStatistic(req, res) {
     try {
       let params = {};
