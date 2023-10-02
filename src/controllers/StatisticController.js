@@ -109,7 +109,6 @@ module.exports = {
   },
   async checkStatistic(req, res) {
     try {
-      console.log(req.body, "req.body");
       let params = {};
       params.P_PERIOD_ID = parseInt(req.body.PERIOD_ID, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
