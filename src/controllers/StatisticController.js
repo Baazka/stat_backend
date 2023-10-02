@@ -70,7 +70,7 @@ module.exports = {
           req.body.Team?.forEach((element) => {
             team.push({
               P_ID: element.ID != null ? parseInt(element.ID) : null,
-              P_STAT_AUDIT_ID: CheckNullInt(req.body.STAT_AUDIT_ID),
+              P_STAT_AUDIT_ID: CheckNullInt(element.STAT_AUDIT_ID),
               P_AUDITOR_ID: CheckNullInt(element.AUDITOR_ID),
               P_ROLE_ID: CheckNullInt(element.ROLE_ID),
               P_IS_ACTIVE: parseInt(element.IS_ACTIVE),
@@ -146,4 +146,20 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   }
+  async checkStatistic(req, res) {
+    try {
+      let params = {};
+      params.P_PERIOD_ID = parseInt(req.body.PERIOD_ID, 10);
+      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+      params.P_DOCUMENT_ID = parseInt(req.body.DOCUMENT_ID, 10);
+
+      let ListQuery = `SELECT COUNT(*) CNT FROM AUD_STAT.STAT_AUDIT 
+      WHERE IS_ACTIVE = 1 AND PERIOD_ID = :P_PERIOD_ID AND DEPARTMENT_ID = :P_DEPARTMENT_ID AND  DOCUMENT_ID = :P_DOCUMENT_ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      return res.send(result.rows[0]?.CNT > 0 ? true : false);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
