@@ -112,7 +112,7 @@ module.exports = {
     }
   },
 
-  async  getStatisticPlan(req,res){
+  async getStatisticPlan(req, res) {
     try {
       let params = {};
       console.log(req.body);
@@ -185,6 +185,25 @@ module.exports = {
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       return res.send(result.rows[0] !== undefined ? result.rows[0] : null);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async changeProcess(req, res) {
+    try {
+      let params = {};
+      params.P_PROCESS_ID = parseInt(req.body.ID, 10);
+      params.P_STAT_AUDIT_ID = parseInt(req.body.STAT_AUDIT_ID, 10);
+      params.P_ACTION_ID = parseInt(req.body.ACTION_ID, 10);
+      params.P_ACTION_DESC = ACTION_DESC;
+      params.P_CREATED_BY = parseInt(req.body.CREATED_BY, 10);
+
+      const queryProcess = `BEGIN AUD_STAT.STAT_AUDIT_PROCESS_CHANGE (:P_PROCESS_ID, :P_STAT_AUDIT_ID, :P_ACTION_ID, :P_ACTION_DESC, :P_CREATED_BY); END;`;
+
+      const result = await OracleDB.simpleExecute(queryProcess, params);
+      return res.send({
+        message: "Хадгаллаа.",
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
