@@ -116,17 +116,15 @@ module.exports = {
     try {
       let params = {};
       console.log(req.body);
-      if(req.body.STAT_ID === undefined || req.body.STAT_ID ===null)
-      return res.send("STAT_ID ilgeenuu");
+      if (req.body.STAT_ID === undefined || req.body.STAT_ID === null)
+        return res.send("STAT_ID ilgeenuu");
 
       params.STAT_ID = parseInt(req.body.STAT_ID, 10);
-      
 
       let ListQuery = `SELECT ID, PERIOD_ID, DEPARTMENT_ID, DOCUMENT_ID, CONFIRM_DATE, STATUS, IS_ACTIVE, CREATED_BY, CREATED_DATE 
       FROM AUD_STAT.STAT_AUDIT
       WHERE ID = :STAT_ID`;
 
-      
       const result = await OracleDB.simpleExecute(ListQuery, params);
 
       let team_query = `SELECT ID,
@@ -139,18 +137,20 @@ module.exports = {
       su.USER_NAME 
       FROM AUD_STAT.STAT_AUDIT_TEAM sat 
       INNER JOIN AUD_REG."SYSTEM_USER" su ON su.USER_ID = sat.AUDITOR_ID 
-      WHERE STAT_AUDIT_ID = :STAT_ID`
+      WHERE STAT_AUDIT_ID = :STAT_ID`;
 
       const team_result = await OracleDB.simpleExecute(team_query, params);
-      if(result.rows !== undefined && result.rows.length>0)
-          return res.send( { Audit: result.rows[0], Team:team_result.rows,CREATED_BY:result.rows[0].CREATED_BY});
-
-
+      if (result.rows !== undefined && result.rows.length > 0)
+        return res.send({
+          Audit: result.rows[0],
+          Team: team_result.rows,
+          CREATED_BY: result.rows[0].CREATED_BY,
+        });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
-  async  checkStatistic(req, res) {
+  async checkStatistic(req, res) {
     try {
       let params = {};
       params.P_PERIOD_ID = parseInt(req.body.PERIOD_ID, 10);
@@ -162,6 +162,29 @@ module.exports = {
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       return res.send(result.rows[0]?.CNT > 0 ? true : false);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async checkProcess(req, res) {
+    try {
+      let params = {};
+      params.P_STAT_AUDIT_ID = parseInt(req.body.STAT_AUDIT_ID, 10);
+
+      let ListQuery = `SELECT P.ID, SA.STATUS, SU.USER_NAME, SU.USER_CODE, 
+      SU1.USER_ID APPROVED_FIRST_ID, SU1.USER_NAME APPROVED_FIRST_NAME, SU1.USER_CODE APPROVED_FIRST_CODE, P.APPROVED_FIRST_DATE,
+      SU2.USER_ID APPROVED_SECOND_ID, SU2.USER_NAME APPROVED_SECOND_NAME, SU2.USER_CODE APPROVED_SECOND_CODE, P.APPROVED_SECOND_DATE,
+      SU3.USER_ID APPROVED_THIRD_ID, SU3.USER_NAME APPROVED_THIRD_NAME, SU3.USER_CODE APPROVED_THIRD_CODE, P.APPROVED_THIRD_DATE
+      FROM AUD_STAT.STAT_AUDIT SA
+      LEFT JOIN AUD_STAT.STAT_AUDIT_PROCESS P ON SA.ID = P.STAT_AUDIT_ID
+      LEFT JOIN AUD_REG.SYSTEM_USER SU ON P.SAVED_BY = SU.USER_ID
+      LEFT JOIN AUD_REG.SYSTEM_USER SU1 ON P.APPROVED_FIRST_ID = SU1.USER_ID
+      LEFT JOIN AUD_REG.SYSTEM_USER SU2 ON P.APPROVED_SECOND_ID = SU2.USER_ID
+      LEFT JOIN AUD_REG.SYSTEM_USER SU3 ON P.APPROVED_THIRD_ID = SU3.USER_ID
+      WHERE SA.ID = :P_STAT_AUDIT_ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      return res.send(result.rows[0] !== undefined ? result.rows[0] : null);
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
