@@ -11,7 +11,7 @@ module.exports = {
 
       let ListQuery = `SELECT 
       BM1.ID,
-      FAS.FAS_AUDIT_ID,
+      FAS.FAS_AUDIT_ID AUDIT_ID,
       FAS.AUDIT_TYPE_ID,
       FAS.AUDIT_TYPE_NAME,
       FAS.AUDIT_NAME,

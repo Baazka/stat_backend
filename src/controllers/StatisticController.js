@@ -9,11 +9,14 @@ module.exports = {
       params.periodid = parseInt(req.body.PERIOD_ID, 10);
       params.depid = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let ListQuery = `SELECT 
+      let ListQuery = `   SELECT 
       SA.ID,
       RP.PERIOD_LABEL,
+      SA.DEPARTMENT_ID ,
+      RP.PERIOD_YEAR,
       SA.CONFIRM_DATE,
       RD.DEPARTMENT_NAME,
+      SA.DOCUMENT_ID,
       D.DOCUMENT_NAME,
       D.DOCUMENT_SHORT_NAME,
       SU.USER_NAME,
@@ -108,7 +111,8 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
-  async getStatisticPlan(req,res){
+
+  async  getStatisticPlan(req,res){
     try {
       let params = {};
       console.log(req.body);
@@ -145,8 +149,8 @@ module.exports = {
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
-  }
-  async checkStatistic(req, res) {
+  },
+  async  checkStatistic(req, res) {
     try {
       let params = {};
       params.P_PERIOD_ID = parseInt(req.body.PERIOD_ID, 10);
