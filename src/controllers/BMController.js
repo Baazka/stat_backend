@@ -145,8 +145,10 @@ module.exports = {
   async BM1IU(req, res) {
     try {
       const queryBM1 = `BEGIN AUD_STAT.NEW_BM1_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_EXPERT_ATTEND, :P_IS_PRESS_REPORT, :P_WORK_PEOPLE, :P_WORK_DAY, :P_WORK_TIME, :P_CREATED_BY); END;`;
+      const queryBM1log = `BEGIN AUD_STAT.NEW_BM1_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM1_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
 
       let data = [];
+      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -163,12 +165,41 @@ module.exports = {
             });
           });
         }
+        if (req.body.log?.length > 0) {
+          req.body.log?.forEach((element) => {
+            log.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_BM1_ID: CheckNullInt(element.BM1_ID),
+              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
+              P_AUDIT_NAME: element.AUDIT_NAME,
+              P_AUDIT_CODE: element.AUDIT_CODE,
+              P_ENT_NAME: element.ENT_NAME,
+              P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
+              P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
+              P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
+              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
+              P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
+              P_AUDIT_TYPE: element.AUDIT_TYPE,
+              P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
+              P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
+              P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
+              P_CHECK_DEPARTMENT_NAME: element.AUDIT_TYPE_ID,
+              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_TYPE_ID,
+              P_AUDIT_LEAD: element.AUDIT_TYPE_ID,
+              P_AUDIT_MEMBER: element.AUDIT_TYPE_ID,
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
         return { data };
       }
 
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM1, data);
+      const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
       return res.send({
         message: "Хадгаллаа.",
       });
