@@ -68,4 +68,11 @@ module.exports = {
     else if (val === "999") return null;
     else return parseInt(val);
   },
+  CheckNullFloat(val) {
+    if (val === undefined) return null;
+    else if (val === null) return null;
+    else if (val === "") return null;
+    else if (val === NaN) return null;
+    else return parseFloat(val);
+  },
 };

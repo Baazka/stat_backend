@@ -1,6 +1,6 @@
 const errorFunction = require("../utils/ErrorFunction");
 const OracleDB = require("../services/database");
-const { CheckNullInt, DateFormat } = require("../utils/Helper");
+const { CheckNullInt, DateFormat, CheckNullFloat } = require("../utils/Helper");
 
 module.exports = {
   async BM1List(req, res) {
@@ -185,10 +185,10 @@ module.exports = {
               P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
               P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
               P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
-              P_CHECK_DEPARTMENT_NAME: element.AUDIT_TYPE_ID,
-              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_TYPE_ID,
-              P_AUDIT_LEAD: element.AUDIT_TYPE_ID,
-              P_AUDIT_MEMBER: element.AUDIT_TYPE_ID,
+              P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
+              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_AUDIT_LEAD: element.AUDIT_LEAD,
+              P_AUDIT_MEMBER: element.AUDIT_MEMBER,
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -253,6 +253,64 @@ module.exports = {
       const result = await OracleDB.simpleExecute(ListQuery, params);
 
       return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM2IU(req, res) {
+    try {
+      const queryBM2 = `BEGIN AUD_STAT.NEW_BM2_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
+      const queryBM2log = `BEGIN AUD_STAT.NEW_BM2_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM2_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_CREATED_BY); END;`;
+
+      let data = [];
+      let log = [];
+      function getData(req) {
+        if (req.body.data?.length > 0) {
+          req.body.data?.forEach((element) => {
+            data.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        if (req.body.log?.length > 0) {
+          req.body.log?.forEach((element) => {
+            log.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_BM2_ID: CheckNullInt(element.BM2_ID),
+              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
+              P_AUDIT_NAME: element.AUDIT_NAME,
+              P_AUDIT_CODE: element.AUDIT_CODE,
+              P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
+              P_AUDIT_TYPE: element.AUDIT_TYPE,
+              P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
+              P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
+              P_ENT_NAME: element.ENT_NAME,
+              P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
+              P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
+              P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
+              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
+              P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
+              P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
+              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.multipleExecute(queryBM2, data);
+      const resultLog = await OracleDB.multipleExecute(queryBM2log, log);
+      return res.send({
+        message: "Хадгаллаа.",
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -372,6 +430,75 @@ module.exports = {
       const result = await OracleDB.simpleExecute(ListQuery, params);
 
       return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM3IU(req, res) {
+    try {
+      const queryBM3 = `BEGIN AUD_STAT.NEW_BM3_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
+      const queryBM3log = `BEGIN AUD_STAT.NEW_BM3_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM3_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+
+      let data = [];
+      let log = [];
+      function getData(req) {
+        if (req.body.data?.length > 0) {
+          req.body.data?.forEach((element) => {
+            data.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        if (req.body.log?.length > 0) {
+          req.body.log?.forEach((element) => {
+            log.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_BM3_ID: CheckNullInt(element.BM3_ID),
+              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
+              P_AUDIT_NAME: element.AUDIT_NAME,
+              P_AUDIT_CODE: element.AUDIT_CODE,
+              P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
+              P_AUDIT_TYPE: element.AUDIT_TYPE,
+              P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
+              P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
+              P_ENT_NAME: element.ENT_NAME,
+              P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
+              P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
+              P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
+              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
+              P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
+              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
+              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+              P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_AMOUNT: CheckNullFloat(element.AMOUNT),
+              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
+                element.IS_SUB_ERROR_CONFLICT
+              ),
+              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+              P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
+              P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
+              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.multipleExecute(queryBM3, data);
+      const resultLog = await OracleDB.multipleExecute(queryBM3log, log);
+      return res.send({
+        message: "Хадгаллаа.",
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
