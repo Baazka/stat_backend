@@ -4,6 +4,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 require("dotenv").config();
 const port = process.env.PORT;
@@ -18,7 +19,13 @@ function initialize() {
     const app = express();
     httpServer = http.createServer(app);
     app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(
+      bodyParser.urlencoded({
+        limit: "50mb",
+        extended: false,
+      })
+    );
+    app.use(bodyParser.json({ limit: "50mb" }));
     app.use(morgan("dev"));
 
     app.use(cookieParser());
