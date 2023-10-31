@@ -13,19 +13,14 @@ const config = require("../config");
 global.__basedir = __dirname;
 
 let httpServer;
+const maxRequestBodySize = "50mb";
 
 function initialize() {
   return new Promise((resolve, reject) => {
     const app = express();
     httpServer = http.createServer(app);
-    app.use(express.json());
-    app.use(
-      bodyParser.urlencoded({
-        extended: true,
-        parameterLimit: 100000,
-        limit: "500mb",
-      })
-    );
+    app.use(express.json({ limit: maxRequestBodySize }));
+    app.use(express.urlencoded({ limit: maxRequestBodySize }));
     app.use(morgan("dev"));
 
     app.use(cookieParser());

@@ -214,7 +214,7 @@ module.exports = {
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
       let ListQuery = `SELECT 
-      FA.ID FAS_AUDIT_ID,
+      FA.ID AUDIT_ID,
       RAT.AUDIT_TYPE_ID,
       RAT.AUDIT_TYPE_NAME,
       NVL(EN.PERIOD5_NAME, NVL(EN.PERIOD4_NAME, NVL(EN.PERIOD3_NAME, AE.ENT_NAME))) ||' - '|| RAT.AUDIT_TYPE_NAME AUDIT_NAME,
@@ -322,7 +322,7 @@ module.exports = {
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
       let ListQuery = `SELECT 
-      FA.ID FAS_AUDIT_ID,
+      FA.ID AUDIT_ID,
       RAT.AUDIT_TYPE_ID,
       RAT.AUDIT_TYPE_NAME,
       NVL(EN.PERIOD5_NAME, NVL(EN.PERIOD4_NAME, NVL(EN.PERIOD3_NAME, AE.ENT_NAME))) ||' - '|| RAT.AUDIT_TYPE_NAME AUDIT_NAME,
