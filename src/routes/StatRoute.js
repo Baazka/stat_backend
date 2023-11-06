@@ -8,4 +8,5 @@ module.exports = (app) => {
   app.post("/statisticCheck", StatisticController.checkStatistic);
   app.post("/statisticProcess", StatisticController.checkProcess);
   app.post("/statisticProcessChange", StatisticController.changeProcess);
+  app.post("/statisticLock", StatisticController.changeLock);
 };

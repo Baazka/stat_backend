@@ -2,12 +2,19 @@ const errorFunction = require("../utils/ErrorFunction");
 const OracleDB = require("../services/database");
 const { CheckNullInt, DateFormat, CheckNullFloat } = require("../utils/Helper");
 
+const ListTeamRole = `SELECT AT.AUDITOR_ID, SU.USER_NAME, AT.ROLE_ID, R.ROLE_NAME FROM AUD_STAT.STAT_AUDIT_TEAM AT
+LEFT JOIN AUD_REG.SYSTEM_USER SU ON AT.AUDITOR_ID = SU.USER_ID
+LEFT JOIN AUD_STAT.REF_ROLE R ON AT.ROLE_ID = R.ID
+WHERE AT.IS_ACTIVE = 1 AND AT.STAT_AUDIT_ID = :P_ID`;
 module.exports = {
   async BM1List(req, res) {
     try {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       BM1.ID,
@@ -136,8 +143,9 @@ module.exports = {
       ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
 
-      return res.send(result.rows);
+      return res.send({ data: result.rows, role: resultRole.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -212,6 +220,9 @@ module.exports = {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID AUDIT_ID,
@@ -321,6 +332,9 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
+
       let ListQuery = `SELECT 
       FA.ID AUDIT_ID,
       RAT.AUDIT_TYPE_ID,
@@ -428,8 +442,9 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
 
-      return res.send(result.rows);
+      return res.send({ data: result.rows, role: resultRole.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -508,6 +523,9 @@ module.exports = {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -644,6 +662,9 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+
+      return res.send({ data: result.rows, role: resultRole.rows });
 
       return res.send(result.rows);
     } catch (err) {
@@ -655,6 +676,9 @@ module.exports = {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -791,8 +815,9 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
 
-      return res.send(result.rows);
+      return res.send({ data: result.rows, role: resultRole.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -802,6 +827,9 @@ module.exports = {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -938,8 +966,9 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
 
-      return res.send(result.rows);
+      return res.send({ data: result.rows, role: resultRole.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -949,6 +978,9 @@ module.exports = {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1085,8 +1117,9 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
 
-      return res.send(result.rows);
+      return res.send({ data: result.rows, role: resultRole.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -1096,6 +1129,9 @@ module.exports = {
       let params = {};
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
+
+      let paramRole = {};
+      paramRole.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1232,8 +1268,9 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
 
-      return res.send(result.rows);
+      return res.send({ data: result.rows, role: resultRole.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }

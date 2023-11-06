@@ -208,4 +208,28 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async changeLock(req, res) {
+    try {
+      let params = [];
+      if (req.body?.length > 0) {
+        req.body.Team?.forEach((element) => {
+          team.push({
+            P_STAT_AUDIT_ID: CheckNullInt(element.STAT_AUDIT_ID),
+            P_IS_LOCK: CheckNullInt(element.IS_LOCK),
+            P_CREATED_BY: parseInt(req.body.CREATED_BY),
+          });
+        });
+      }
+
+      console.log(params, "params");
+      const queryLock = `BEGIN AUD_STAT.STAT_AUDIT_LOCK (:P_STAT_AUDIT_ID, :P_IS_LOCK, :P_CREATED_BY); END;`;
+
+      const result = await OracleDB.multipleExecute(queryLock, params);
+      return res.send({
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
