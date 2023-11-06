@@ -166,29 +166,6 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
-  async checkProcess(req, res) {
-    try {
-      let params = {};
-      params.P_STAT_AUDIT_ID = parseInt(req.body.STAT_AUDIT_ID, 10);
-
-      let ListQuery = `SELECT P.ID, SA.STATUS, SU.USER_NAME, SU.USER_CODE, 
-      SU1.USER_ID APPROVED_FIRST_ID, SU1.USER_NAME APPROVED_FIRST_NAME, SU1.USER_CODE APPROVED_FIRST_CODE, P.APPROVED_FIRST_DATE,
-      SU2.USER_ID APPROVED_SECOND_ID, SU2.USER_NAME APPROVED_SECOND_NAME, SU2.USER_CODE APPROVED_SECOND_CODE, P.APPROVED_SECOND_DATE,
-      SU3.USER_ID APPROVED_THIRD_ID, SU3.USER_NAME APPROVED_THIRD_NAME, SU3.USER_CODE APPROVED_THIRD_CODE, P.APPROVED_THIRD_DATE
-      FROM AUD_STAT.STAT_AUDIT SA
-      LEFT JOIN AUD_STAT.STAT_AUDIT_PROCESS P ON SA.ID = P.STAT_AUDIT_ID
-      LEFT JOIN AUD_REG.SYSTEM_USER SU ON P.SAVED_BY = SU.USER_ID
-      LEFT JOIN AUD_REG.SYSTEM_USER SU1 ON P.APPROVED_FIRST_ID = SU1.USER_ID
-      LEFT JOIN AUD_REG.SYSTEM_USER SU2 ON P.APPROVED_SECOND_ID = SU2.USER_ID
-      LEFT JOIN AUD_REG.SYSTEM_USER SU3 ON P.APPROVED_THIRD_ID = SU3.USER_ID
-      WHERE SA.ID = :P_STAT_AUDIT_ID`;
-
-      const result = await OracleDB.simpleExecute(ListQuery, params);
-      return res.send(result.rows[0] !== undefined ? result.rows[0] : null);
-    } catch (err) {
-      return errorFunction.saveErrorAndSend(req, res, err);
-    }
-  },
   async changeProcess(req, res) {
     try {
       let params = {};

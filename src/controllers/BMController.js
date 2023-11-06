@@ -6,6 +6,17 @@ const ListTeamRole = `SELECT AT.AUDITOR_ID, SU.USER_NAME, AT.ROLE_ID, R.ROLE_NAM
 LEFT JOIN AUD_REG.SYSTEM_USER SU ON AT.AUDITOR_ID = SU.USER_ID
 LEFT JOIN AUD_STAT.REF_ROLE R ON AT.ROLE_ID = R.ID
 WHERE AT.IS_ACTIVE = 1 AND AT.STAT_AUDIT_ID = :P_ID`;
+const AuditStatus = `SELECT P.ID, SA.STATUS, SU.USER_NAME, SU.USER_CODE, 
+SU1.USER_ID APPROVED_FIRST_ID, SU1.USER_NAME APPROVED_FIRST_NAME, SU1.USER_CODE APPROVED_FIRST_CODE, P.APPROVED_FIRST_DATE,
+SU2.USER_ID APPROVED_SECOND_ID, SU2.USER_NAME APPROVED_SECOND_NAME, SU2.USER_CODE APPROVED_SECOND_CODE, P.APPROVED_SECOND_DATE,
+SU3.USER_ID APPROVED_THIRD_ID, SU3.USER_NAME APPROVED_THIRD_NAME, SU3.USER_CODE APPROVED_THIRD_CODE, P.APPROVED_THIRD_DATE
+FROM AUD_STAT.STAT_AUDIT SA
+LEFT JOIN AUD_STAT.STAT_AUDIT_PROCESS P ON SA.ID = P.STAT_AUDIT_ID
+LEFT JOIN AUD_REG.SYSTEM_USER SU ON P.SAVED_BY = SU.USER_ID
+LEFT JOIN AUD_REG.SYSTEM_USER SU1 ON P.APPROVED_FIRST_ID = SU1.USER_ID
+LEFT JOIN AUD_REG.SYSTEM_USER SU2 ON P.APPROVED_SECOND_ID = SU2.USER_ID
+LEFT JOIN AUD_REG.SYSTEM_USER SU3 ON P.APPROVED_THIRD_ID = SU3.USER_ID
+WHERE SA.ID = :P_ID`;
 module.exports = {
   async BM1List(req, res) {
     try {
@@ -13,8 +24,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       BM1.ID,
@@ -143,9 +154,15 @@ module.exports = {
       ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -221,8 +238,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID AUDIT_ID,
@@ -262,8 +279,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send(result.rows);
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -332,8 +356,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID AUDIT_ID,
@@ -442,9 +466,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -524,8 +554,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -662,11 +692,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
-
-      return res.send(result.rows);
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -677,8 +711,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -815,9 +849,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -828,8 +868,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -966,9 +1006,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -979,8 +1025,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1117,9 +1163,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -1130,8 +1182,8 @@ module.exports = {
       params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
 
-      let paramRole = {};
-      paramRole.P_ID = parseInt(req.body.ID, 10);
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1268,9 +1320,15 @@ module.exports = {
       //ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
-      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramRole);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
 
-      return res.send({ data: result.rows, role: resultRole.rows });
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
