@@ -198,7 +198,6 @@ module.exports = {
           });
         });
       }
-      console.log(params);
       const queryLock = `BEGIN AUD_STAT.STAT_AUDIT_LOCK (:P_STAT_AUDIT_ID, :P_IS_LOCK, :P_CREATED_BY); END;`;
 
       const result = await OracleDB.multipleExecute(queryLock, params);

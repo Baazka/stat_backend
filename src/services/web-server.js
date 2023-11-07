@@ -4,7 +4,6 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 
 require("dotenv").config();
 const port = process.env.PORT;
@@ -20,7 +19,7 @@ function initialize() {
     const app = express();
     httpServer = http.createServer(app);
     app.use(express.json({ limit: maxRequestBodySize }));
-    app.use(express.urlencoded({ limit: maxRequestBodySize }));
+    app.use(express.urlencoded({ limit: maxRequestBodySize, extended: true }));
     app.use(morgan("dev"));
 
     app.use(cookieParser());
