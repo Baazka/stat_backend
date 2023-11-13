@@ -17,15 +17,22 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU1 ON P.APPROVED_FIRST_ID = SU1.USER_ID
 LEFT JOIN AUD_REG.SYSTEM_USER SU2 ON P.APPROVED_SECOND_ID = SU2.USER_ID
 LEFT JOIN AUD_REG.SYSTEM_USER SU3 ON P.APPROVED_THIRD_ID = SU3.USER_ID
 WHERE SA.ID = :P_ID`;
+const FindIDs = `SELECT DEPARTMENT_ID, FP.PERIOD_ID FROM AUD_STAT.STAT_AUDIT SA 
+INNER JOIN AUD_STAT.REF_PERIOD P ON SA.PERIOD_ID = P.ID
+INNER JOIN FAS_ADMIN.REF_PERIOD FP ON P.PERIOD_YEAR = FP.YEAR_LABEL
+WHERE SA.ID = :P_ID`;
+
 module.exports = {
   async BM1List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       BM1.ID,
@@ -149,7 +156,7 @@ module.exports = {
       GROUP BY A.FAS_AUDIT_ID) B ON FA.ID = B.FAS_AUDIT_ID
       --END UR UGUUJ
       
-      WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID`;
+      WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID`;
 
       ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -234,12 +241,14 @@ module.exports = {
   },
   async BM2List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID AUDIT_ID,
@@ -274,7 +283,7 @@ module.exports = {
       LEFT JOIN FAS_ADMIN.FAS_DOCUMENT_DATA FDD2 ON FA.ID = FDD2.FAS_AUDIT_ID AND FDD2.IS_ACTIVE = 1 AND FDD2.IND_ID IN (71,346,437,534)
       LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE RDI ON FDD2.IND_VALUE = RDI.ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -352,12 +361,14 @@ module.exports = {
   },
   async BM3List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID AUDIT_ID,
@@ -461,7 +472,7 @@ module.exports = {
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341 AND A.IS_ERROR_CONFLICT = 285
         )) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -550,12 +561,14 @@ module.exports = {
   },
   async BM4List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -687,7 +700,7 @@ module.exports = {
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         )) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 315
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -776,12 +789,14 @@ module.exports = {
   },
   async BM5List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -913,7 +928,7 @@ module.exports = {
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         )) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 316
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -1002,12 +1017,14 @@ module.exports = {
   },
   async BM6List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1139,7 +1156,7 @@ module.exports = {
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         )) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 318
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -1228,12 +1245,14 @@ module.exports = {
   },
   async BM7List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1365,7 +1384,7 @@ module.exports = {
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         )) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 317
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
@@ -1454,12 +1473,14 @@ module.exports = {
   },
   async BM8List(req, res) {
     try {
-      let params = {};
-      params.P_PERIOD_YEAR = parseInt(req.body.PERIOD_LABEL, 10);
-      params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
-
       let paramID = {};
       paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
       FA.ID FAS_AUDIT_ID,
@@ -1591,7 +1612,7 @@ module.exports = {
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         )) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 319
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = (SELECT PERIOD_ID FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1 AND YEAR_LABEL = :P_PERIOD_YEAR)`;
+      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID AND FA.PERIOD_ID = :P_PERIOD_ID`;
 
       //ListQuery += `\n ORDER BY BM1.ID`;
 
