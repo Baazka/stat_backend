@@ -8,9 +8,9 @@ module.exports = {
       let params = {};
       params.periodid = parseInt(req.body.PERIOD_ID, 10);
       params.depid =
-        params.usertype === "ADMIN" ||
-        params.usertype === "ALL_VIEWER" ||
-        params.usertype === "STAT_ADMIN"
+        req.body.USER_TYPE_NAME === "ADMIN" ||
+        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+        req.body.USER_TYPE_NAME === "STAT_ADMIN"
           ? parseInt(req.body.FILTER_DEPARTMENT_ID, 10)
           : parseInt(req.body.USER_DEPARTMENT_ID, 10);
       params.userid = parseInt(req.body.USER_ID, 10);
@@ -61,11 +61,13 @@ module.exports = {
         ListQuery += `\n AND SA.PERIOD_ID = :PERIOD_ID`;
         binds.PERIOD_ID = params.periodid;
       }
-      if (params.depid) {
+      if (params.depid !== 999) {
         ListQuery += `\n AND SA.DEPARTMENT_ID = :DEPARTMENT_ID`;
         binds.DEPARTMENT_ID = params.depid;
       }
       ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
+
+      //console.log(ListQuery, binds, "bindsbindsbindsbindsbinds");
 
       const result = await OracleDB.simpleExecute(ListQuery, binds);
 
