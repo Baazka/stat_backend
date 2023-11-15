@@ -7,7 +7,12 @@ module.exports = {
     try {
       let params = {};
       params.periodid = parseInt(req.body.PERIOD_ID, 10);
-      params.depid = parseInt(req.body.DEPARTMENT_ID, 10);
+      params.depid =
+        params.usertype === "ADMIN" ||
+        params.usertype === "ALL_VIEWER" ||
+        params.usertype === "STAT_ADMIN"
+          ? parseInt(req.body.FILTER_DEPARTMENT_ID, 10)
+          : parseInt(req.body.USER_DEPARTMENT_ID, 10);
       params.userid = parseInt(req.body.USER_ID, 10);
       params.userid = parseInt(req.body.USER_ID, 10);
       params.usertype = req.body.USER_TYPE_NAME;
@@ -39,19 +44,19 @@ module.exports = {
 
       const binds = {};
 
-      if (
-        params.usertype === "ADMIN" ||
-        params.usertype === "ALL_VIEWER" ||
-        params.usertype === "HEAD_AUDITOR" ||
-        params.usertype === "STAT_ADMIN"
-      ) {
-        ListQuery += `\n AND 1 = 1 `;
-      } else {
-        if (params.userid) {
-          binds.USER_ID = params.userid;
-          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM AUD_STAT.STAT_AUDIT_TEAM T WHERE T.IS_ACTIVE = 1 AND T.AUDITOR_ID = :USER_ID AND T.STAT_AUDIT_ID = SA.ID)`;
-        } //else binds = {};
-      }
+      // if (
+      //   params.usertype === "ADMIN" ||
+      //   params.usertype === "ALL_VIEWER" ||
+      //   params.usertype === "HEAD_AUDITOR" ||
+      //   params.usertype === "STAT_ADMIN"
+      // ) {
+      //   ListQuery += `\n AND 1 = 1 `;
+      // } else {
+      //   if (params.userid) {
+      //     binds.USER_ID = params.userid;
+      //     ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM AUD_STAT.STAT_AUDIT_TEAM T WHERE T.IS_ACTIVE = 1 AND T.AUDITOR_ID = :USER_ID AND T.STAT_AUDIT_ID = SA.ID)`;
+      //   } //else binds = {};
+      // }
       if (params.periodid) {
         ListQuery += `\n AND SA.PERIOD_ID = :PERIOD_ID`;
         binds.PERIOD_ID = params.periodid;
