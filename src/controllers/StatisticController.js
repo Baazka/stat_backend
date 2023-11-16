@@ -232,4 +232,21 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async removeStatistic(req, res) {
+    try {
+      let params = {
+        P_ID: CheckNullInt(req.body.ID),
+        P_CREATED_BY: parseInt(req.body.CREATED_BY),
+      };
+
+      const queryRemove = `BEGIN AUD_STAT.STAT_AUDIT_REMOVE (:P_ID, :P_CREATED_BY); END;`;
+
+      const result = await OracleDB.simpleExecute(queryRemove, params);
+      return res.send({
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
