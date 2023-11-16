@@ -565,7 +565,7 @@ module.exports = {
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
                     \n ORDER BY BM3.ID`;
-      console.log(ListQuery, "ListQuery");
+
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
       const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
