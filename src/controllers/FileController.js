@@ -1,5 +1,7 @@
 const fs = require("fs");
 const uploadFile = require("../middleware/Upload");
+const errorFunction = require("../utils/ErrorFunction");
+const OracleDB = require("../services/database");
 
 const upload = async (req, res) => {
   try {
@@ -62,7 +64,6 @@ const get = async (req, res) => {
     let ListQuery =
       `SELECT ID, STAT_AUDIT_ID, FILE_NAME, FILE_PATH, IS_ACTIVE, CREATED_BY FROM AUD_STAT.STAT_AUDIT_FILE WHERE IS_ACTIVE = 1 AND STAT_AUDIT_ID = ` +
       fileID;
-
     const result = await OracleDB.simpleExecute(ListQuery);
 
     return res.send(result.rows[0]);
