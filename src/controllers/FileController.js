@@ -71,9 +71,34 @@ const get = async (req, res) => {
     return errorFunction.saveErrorAndSend(req, res, err);
   }
 };
+const post = async (req, res) => {
+  try {
+    const fileID = req.query.StatID;
+
+    let file = {};
+
+    if (req.body.file !== undefined) {
+      file.P_ID = req.body.file.ID != null ? parseInt(req.body.file.ID) : null;
+      file.P_STAT_AUDIT_ID = CheckNullInt(req.body.file.STAT_AUDIT_ID);
+      file.P_FILE_NAME = req.body.file.FILE_NAME;
+      file.P_FILE_PATH = req.body.file.FILE_PATH;
+      file.P_IS_ACTIVE = parseInt(req.body.file.IS_ACTIVE);
+      file.P_CREATED_BY = parseInt(req.body.CREATED_BY);
+    }
+
+    let queryStatFile = `BEGIN AUD_STAT.STAT_AUDIT_FILE_I_U (:P_ID, :P_STAT_AUDIT_ID, :P_FILE_NAME, :P_FILE_PATH, :P_IS_ACTIVE, :P_CREATED_BY); END;`;
+
+    const resultFile = await OracleDB.simpleExecute(queryStatFile, file);
+
+    return res.send(resultFile.rows[0]);
+  } catch (err) {
+    return errorFunction.saveErrorAndSend(req, res, err);
+  }
+};
 
 module.exports = {
   upload,
   get,
+  post,
   remove,
 };
