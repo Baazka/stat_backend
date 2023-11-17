@@ -21,6 +21,7 @@ const FindIDs = `SELECT DEPARTMENT_ID, FP.PERIOD_ID FROM AUD_STAT.STAT_AUDIT SA
 INNER JOIN AUD_STAT.REF_PERIOD P ON SA.PERIOD_ID = P.ID
 INNER JOIN FAS_ADMIN.REF_PERIOD FP ON P.PERIOD_YEAR = FP.YEAR_LABEL
 WHERE SA.ID = :P_ID`;
+const queryStatFile = `BEGIN AUD_STAT.STAT_AUDIT_FILE_I_U (:P_ID, :P_STAT_AUDIT_ID, :P_FILE_NAME, :P_FILE_PATH, :P_IS_ACTIVE, :P_CREATED_BY); END;`;
 
 module.exports = {
   async BM1List(req, res) {
@@ -205,6 +206,7 @@ module.exports = {
 
       let data = [];
       let log = [];
+      let file = {};
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -249,6 +251,15 @@ module.exports = {
             });
           });
         }
+        if (req.body.file !== undefined) {
+          file.P_ID =
+            req.body.file.ID != null ? parseInt(req.body.file.ID) : null;
+          file.P_STAT_AUDIT_ID = CheckNullInt(req.body.file.STAT_AUDIT_ID);
+          file.P_FILE_NAME = req.body.file.FILE_NAME;
+          file.P_FILE_PATH = req.body.file.FILE_PATH;
+          file.P_IS_ACTIVE = parseInt(req.body.file.IS_ACTIVE);
+          file.P_CREATED_BY = parseInt(req.body.CREATED_BY);
+        }
         return { data };
       }
 
@@ -256,6 +267,7 @@ module.exports = {
 
       const result = await OracleDB.multipleExecute(queryBM1, data);
       const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
+      const resultFile = await OracleDB.simpleExecute(queryStatFile, file);
       return res.send({
         message: "Хадгаллаа.",
       });
