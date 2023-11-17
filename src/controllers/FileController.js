@@ -57,10 +57,10 @@ const remove = (req, res) => {
 };
 const get = async (req, res) => {
   try {
-    const fileID = req.query.FileID;
+    const fileID = req.query.StatID;
 
     let ListQuery =
-      `SELECT ID, STAT_AUDIT_ID, FILE_NAME, FILE_PATH, IS_ACTIVE, CREATED_BY FROM AUD_STAT.STAT_AUDIT_FILE WHERE IS_ACTIVE = 1 AND ID = ` +
+      `SELECT ID, STAT_AUDIT_ID, FILE_NAME, FILE_PATH, IS_ACTIVE, CREATED_BY FROM AUD_STAT.STAT_AUDIT_FILE WHERE IS_ACTIVE = 1 AND STAT_AUDIT_ID = ` +
       fileID;
 
     const result = await OracleDB.simpleExecute(ListQuery);
