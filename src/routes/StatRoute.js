@@ -7,6 +7,7 @@ module.exports = (app) => {
   app.post("/get_stat_plan", StatisticController.getStatisticPlan);
   app.post("/statisticCheck", StatisticController.checkStatistic);
   app.post("/statisticProcessChange", StatisticController.changeProcess);
+  app.post("/getProcess", StatisticController.getProcess);
   app.post("/statisticLock", StatisticController.changeLock);
   app.post("/statisticRemove", StatisticController.removeStatistic);
 };
