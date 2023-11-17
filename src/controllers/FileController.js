@@ -55,8 +55,24 @@ const remove = (req, res) => {
     });
   }
 };
+const get = async (req, res) => {
+  try {
+    const fileID = req.query.FileID;
+
+    let ListQuery =
+      `SELECT ID, STAT_AUDIT_ID, FILE_NAME, FILE_PATH, IS_ACTIVE, CREATED_BY FROM AUD_STAT.STAT_AUDIT_FILE WHERE IS_ACTIVE = 1 AND ID = ` +
+      fileID;
+
+    const result = await OracleDB.simpleExecute(ListQuery);
+
+    return res.send(result.rows[0]);
+  } catch (err) {
+    return errorFunction.saveErrorAndSend(req, res, err);
+  }
+};
 
 module.exports = {
   upload,
+  get,
   remove,
 };
