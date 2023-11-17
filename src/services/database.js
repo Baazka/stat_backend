@@ -47,6 +47,7 @@ async function simpleExecute(statement, binds = [], opts = {}) {
   try {
     conn = await oracledb.getConnection();
     result = await conn.execute(statement, binds, opts);
+  
     return result;
   } catch (err) {
     console.error("error", err);

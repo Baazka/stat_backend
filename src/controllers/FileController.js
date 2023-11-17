@@ -74,10 +74,7 @@ const get = async (req, res) => {
 };
 const post = async (req, res) => {
   try {
-    
-
     let file = {};
-    console.log(req.body.file);
     if (req.body.file !== undefined) {
       file ={
       P_ID : req.body.file.ID != null ? parseInt(req.body.file.ID) : null,
@@ -87,12 +84,11 @@ const post = async (req, res) => {
       P_IS_ACTIVE : parseInt(req.body.file.IS_ACTIVE),
       P_CREATED_BY : parseInt(req.body.file.CREATED_BY)}
     }
-console.log(file,'file');
     let queryStatFile = `BEGIN AUD_STAT.STAT_AUDIT_FILE_I_U (:P_ID, :P_STAT_AUDIT_ID, :P_FILE_NAME, :P_FILE_PATH, :P_IS_ACTIVE, :P_CREATED_BY); END;`;
-
     const resultFile = await OracleDB.simpleExecute(queryStatFile, file);
-
-    return res.send(resultFile.rows[0]);
+    return res.send({
+      message: "Хадгаллаа.",
+    });
   } catch (err) {
     return errorFunction.saveErrorAndSend(req, res, err);
   }
