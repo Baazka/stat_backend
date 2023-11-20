@@ -24,7 +24,7 @@ let storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    cb(null, fileName + "." + file.originalname.split(".").pop());
+    cb(null, fileName );//+ "." + file.originalname.split(".").pop()
   },
 });
 let uploadFile = multer({
