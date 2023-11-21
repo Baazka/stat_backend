@@ -130,6 +130,7 @@ module.exports = {
       const result = await OracleDB.simpleExecute(queryAudit, audit);
       const resultTeam = await OracleDB.multipleExecute(queryTeam, team);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -204,6 +205,7 @@ module.exports = {
 
       const result = await OracleDB.simpleExecute(queryProcess, params);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -250,6 +252,7 @@ module.exports = {
 
       const result = await OracleDB.multipleExecute(queryLock, params);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -267,6 +270,7 @@ module.exports = {
 
       const result = await OracleDB.simpleExecute(queryRemove, params);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {

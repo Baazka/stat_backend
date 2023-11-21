@@ -255,6 +255,7 @@ module.exports = {
       const result = await OracleDB.multipleExecute(queryBM1, data);
       const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
