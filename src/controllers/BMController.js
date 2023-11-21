@@ -219,33 +219,31 @@ module.exports = {
               P_WORK_TIME: CheckNullInt(element.WORK_TIME),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
-          });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
-            log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              //P_BM1_ID: CheckNullInt(element.BM1_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
-              P_AUDIT_NAME: element.AUDIT_NAME,
-              P_AUDIT_CODE: element.AUDIT_CODE,
-              P_ENT_NAME: element.ENT_NAME,
-              P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
-              P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
-              P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
-              P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
-              P_AUDIT_TYPE: element.AUDIT_TYPE,
-              P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
-              P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
-              P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
-              P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
-              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_AUDIT_LEAD: element.AUDIT_LEAD,
-              P_AUDIT_MEMBER: element.AUDIT_MEMBER,
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            req.body.data?.forEach((element) => {
+              log.push({
+                P_ID: element.ID != null ? parseInt(element.LOG_ID) : null,
+                P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+                P_BM1_ID: CheckNullInt(element.ID),
+                P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+                P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
+                P_AUDIT_NAME: element.AUDIT_NAME,
+                P_AUDIT_CODE: element.AUDIT_CODE,
+                P_ENT_NAME: element.ENT_NAME,
+                P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
+                P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
+                P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
+                P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
+                P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
+                P_AUDIT_TYPE: element.AUDIT_TYPE,
+                P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
+                P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
+                P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
+                P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
+                P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
+                P_AUDIT_LEAD: element.AUDIT_LEAD,
+                P_AUDIT_MEMBER: element.AUDIT_MEMBER,
+                P_CREATED_BY: parseInt(req.body.CREATED_BY),
+              });
             });
           });
         }
@@ -383,13 +381,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM2_ID: CheckNullInt(element.BM2_ID),
+              P_BM2_ID: CheckNullInt(element.ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
@@ -597,13 +594,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.BM3_ID),
+              P_BM3_ID: CheckNullInt(element.ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
@@ -850,7 +846,7 @@ module.exports = {
   async BM4IU(req, res) {
     try {
       const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      //const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -864,13 +860,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
+              P_BM4_ID: CheckNullInt(element.ID),
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.BM3_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
@@ -883,21 +878,39 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -908,7 +921,7 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM4, data);
-      //const resultLog = await OracleDB.multipleExecute(queryBM4log, log);
+      const resultLog = await OracleDB.multipleExecute(queryBM4log, log);
       return res.send({
         message: "Хадгаллаа.",
       });
@@ -1117,7 +1130,7 @@ module.exports = {
   async BM5IU(req, res) {
     try {
       const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      //const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1131,13 +1144,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.BM3_ID),
+              P_BM5_ID: CheckNullInt(element.BM5_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
@@ -1175,7 +1187,7 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM5, data);
-      // const resultLog = await OracleDB.multipleExecute(queryBM5log, log);
+      const resultLog = await OracleDB.multipleExecute(queryBM5log, log);
       return res.send({
         message: "Хадгаллаа.",
       });
@@ -1384,7 +1396,7 @@ module.exports = {
   async BM6IU(req, res) {
     try {
       const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      //const queryBM6log = `BEGIN AUD_STAT.NEW_BM6_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM6_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM6log = `BEGIN AUD_STAT.NEW_BM6_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM6_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1398,13 +1410,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.BM3_ID),
+              P_BM6_ID: CheckNullInt(element.BM6_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
@@ -1442,7 +1453,7 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM6, data);
-      //const resultLog = await OracleDB.multipleExecute(queryBM6log, log);
+      const resultLog = await OracleDB.multipleExecute(queryBM6log, log);
       return res.send({
         message: "Хадгаллаа.",
       });
@@ -1651,7 +1662,7 @@ module.exports = {
   async BM7IU(req, res) {
     try {
       const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      //const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1665,13 +1676,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.BM3_ID),
+              P_BM7_ID: CheckNullInt(element.BM7_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
@@ -1918,7 +1928,7 @@ module.exports = {
   async BM8IU(req, res) {
     try {
       const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      //const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1932,13 +1942,12 @@ module.exports = {
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
-        }
-        if (req.body.log?.length > 0) {
-          req.body.log?.forEach((element) => {
+
+          req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.BM3_ID),
+              P_BM8_ID: CheckNullInt(element.BM8_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
