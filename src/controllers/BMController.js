@@ -182,7 +182,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM1.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -335,8 +335,6 @@ module.exports = {
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID 
       `;
 
-      //ListQuery += `\n ORDER BY BM1.ID`;
-
       if (
         req.body.USER_TYPE_NAME === "ADMIN" ||
         req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
@@ -348,7 +346,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM2.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
       //console.log(ListQuery, "ListQuery");
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -563,7 +561,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM3.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -830,7 +828,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM4.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -848,7 +846,7 @@ module.exports = {
   },
   async BM4IU(req, res) {
     try {
-      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
+      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
       const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
@@ -860,6 +858,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1115,7 +1114,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM5.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -1133,7 +1132,7 @@ module.exports = {
   },
   async BM5IU(req, res) {
     try {
-      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
+      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
       const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
@@ -1145,6 +1144,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1382,7 +1382,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM6.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -1649,7 +1649,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM7.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -1667,7 +1667,7 @@ module.exports = {
   },
   async BM7IU(req, res) {
     try {
-      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
+      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
       const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
@@ -1679,6 +1679,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1916,7 +1917,7 @@ module.exports = {
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
-                    \n ORDER BY BM8.ID`;
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
