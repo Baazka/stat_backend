@@ -16,11 +16,11 @@ const upload = async (req, res) => {
     filePath += `${
       req.params.folderName +
       "/" +
-      req.params.fileName +
-      "." +
-      req.file.originalname.split(".").pop()
+      req.params.fileName 
     }`;
-
+    // +
+    // "." +
+    // req.file.originalname.split(".").pop()
     res.status(200).send({
       filePath,
       message: "Амжилттай хууллаа.",
@@ -83,7 +83,9 @@ const post = async (req, res) => {
       P_FILE_PATH : req.body.file.FILE_PATH,
       P_IS_ACTIVE : parseInt(req.body.file.IS_ACTIVE),
       P_CREATED_BY : parseInt(req.body.file.CREATED_BY)}
+
     }
+    console.log(file,'file');
     let queryStatFile = `BEGIN AUD_STAT.STAT_AUDIT_FILE_I_U (:P_ID, :P_STAT_AUDIT_ID, :P_FILE_NAME, :P_FILE_PATH, :P_IS_ACTIVE, :P_CREATED_BY); END;`;
     const resultFile = await OracleDB.simpleExecute(queryStatFile, file);
     return res.send({
