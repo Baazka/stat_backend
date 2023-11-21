@@ -846,7 +846,7 @@ module.exports = {
   },
   async BM4IU(req, res) {
     try {
-      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
+      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
       const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
@@ -858,7 +858,6 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -945,6 +944,7 @@ module.exports = {
 
       let ListQuery = `SELECT 
         BM5.ID,
+        BM5.IS_TRANSFER,
         FAS.FAS_AUDIT_ID AUDIT_ID,
         FAS.PERIOD_ID,
         FAS.YEAR_LABEL,
@@ -1479,7 +1479,8 @@ module.exports = {
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT 
-        BM7.ID,
+        BM7.ID,        
+        BM7.IS_TRANSFER,
         FAS.FAS_AUDIT_ID AUDIT_ID,
         FAS.PERIOD_ID,
         FAS.YEAR_LABEL,
@@ -1748,6 +1749,7 @@ module.exports = {
 
       let ListQuery = `SELECT 
         BM8.ID,
+        BM8.IS_TRANSFER,
         FAS.FAS_AUDIT_ID AUDIT_ID,
         FAS.PERIOD_ID,
         FAS.YEAR_LABEL,
@@ -1935,7 +1937,7 @@ module.exports = {
   },
   async BM8IU(req, res) {
     try {
-      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
+      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_CREATED_BY); END;`;
       const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
@@ -1947,6 +1949,17 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
+              P_TRANSFER_AMOUNT: CheckNullFloat(element.TRANSFER_AMOUNT),
+              P_TRANSFER_DESC: element.TRANSFER_DESC,
+              P_TRANSFER_ORG: element.TRANSFER_ORG,
+              P_TRANSFER_DOC_NO: element.TRANSFER_DOC_NO,
+              P_PERSON_POSITION: element.PERSON_POSITION,
+              P_LAW_FULL_AMOUNT: CheckNullFloat(element.LAW_FULL_AMOUNT),
+              P_LAW_UNDER_AMOUNT: CheckNullFloat(element.LAW_UNDER_AMOUNT),
+              P_LAW_REJECTED_AMOUNT: CheckNullFloat(
+                element.LAW_REJECTED_AMOUNT
+              ),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
