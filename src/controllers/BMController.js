@@ -201,7 +201,7 @@ module.exports = {
   async BM1IU(req, res) {
     try {
       const queryBM1 = `BEGIN AUD_STAT.NEW_BM1_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_EXPERT_ATTEND, :P_IS_PRESS_REPORT, :P_WORK_PEOPLE, :P_WORK_DAY, :P_WORK_TIME, :P_CREATED_BY); END;`;
-      const queryBM1log = `BEGIN AUD_STAT.NEW_BM1_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
+      const queryBM1log = `BEGIN AUD_STAT.NEW_BM1_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM1_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -219,31 +219,31 @@ module.exports = {
               P_WORK_TIME: CheckNullInt(element.WORK_TIME),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
-            req.body.data?.forEach((element) => {
-              log.push({
-                P_ID: element.ID != null ? parseInt(element.LOG_ID) : null,
-                P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-                P_BM1_ID: CheckNullInt(element.ID),
-                P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-                P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
-                P_AUDIT_NAME: element.AUDIT_NAME,
-                P_AUDIT_CODE: element.AUDIT_CODE,
-                P_ENT_NAME: element.ENT_NAME,
-                P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
-                P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
-                P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-                P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
-                P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
-                P_AUDIT_TYPE: element.AUDIT_TYPE,
-                P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
-                P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
-                P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
-                P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
-                P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-                P_AUDIT_LEAD: element.AUDIT_LEAD,
-                P_AUDIT_MEMBER: element.AUDIT_MEMBER,
-                P_CREATED_BY: parseInt(req.body.CREATED_BY),
-              });
+          });
+          req.body.data?.forEach((element) => {
+            log.push({
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
+              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_BM1_ID: CheckNullInt(element.ID),
+              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
+              P_AUDIT_NAME: element.AUDIT_NAME,
+              P_AUDIT_CODE: element.AUDIT_CODE,
+              P_ENT_NAME: element.ENT_NAME,
+              P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
+              P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
+              P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
+              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
+              P_FORM_TYPE_ID: CheckNullInt(element.FORM_TYPE_ID),
+              P_AUDIT_TYPE: element.AUDIT_TYPE,
+              P_AUDIT_ORG_TYPE: CheckNullInt(element.AUDIT_ORG_TYPE),
+              P_AUDIT_ORG_CHECK_NAME: element.AUDIT_ORG_CHECK_NAME,
+              P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
+              P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
+              P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_AUDIT_LEAD: element.AUDIT_LEAD,
+              P_AUDIT_MEMBER: element.AUDIT_MEMBER,
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
         }
@@ -384,7 +384,7 @@ module.exports = {
 
           req.body.data?.forEach((element) => {
             log.push({
-              P_ID: element.ID != null ? parseInt(element.LOG_ID) : null,
+              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_BM2_ID: CheckNullInt(element.ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
@@ -415,6 +415,7 @@ module.exports = {
       const result = await OracleDB.multipleExecute(queryBM2, data);
       const resultLog = await OracleDB.multipleExecute(queryBM2log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -639,6 +640,7 @@ module.exports = {
       const result = await OracleDB.multipleExecute(queryBM3, data);
       const resultLog = await OracleDB.multipleExecute(queryBM3log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -923,6 +925,7 @@ module.exports = {
       const result = await OracleDB.multipleExecute(queryBM4, data);
       const resultLog = await OracleDB.multipleExecute(queryBM4log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -1189,6 +1192,7 @@ module.exports = {
       const result = await OracleDB.multipleExecute(queryBM5, data);
       const resultLog = await OracleDB.multipleExecute(queryBM5log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -1455,6 +1459,7 @@ module.exports = {
       const result = await OracleDB.multipleExecute(queryBM6, data);
       const resultLog = await OracleDB.multipleExecute(queryBM6log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -1719,8 +1724,9 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM7, data);
-      //const resultLog = await OracleDB.multipleExecute(queryBM7log, log);
+      const resultLog = await OracleDB.multipleExecute(queryBM7log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
@@ -1985,8 +1991,9 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM8, data);
-      //const resultLog = await OracleDB.multipleExecute(queryBM8log, log);
+      const resultLog = await OracleDB.multipleExecute(queryBM8log, log);
       return res.send({
+        status: 200,
         message: "Хадгаллаа.",
       });
     } catch (err) {
