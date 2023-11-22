@@ -827,7 +827,7 @@ module.exports = {
         ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM4.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -846,8 +846,8 @@ module.exports = {
   },
   async BM4IU(req, res) {
     try {
-      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_CREATED_BY); END;`;
+      const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -858,6 +858,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -867,7 +868,6 @@ module.exports = {
               P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_BM4_ID: CheckNullInt(element.ID),
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1113,7 +1113,7 @@ module.exports = {
         ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM5.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1132,8 +1132,8 @@ module.exports = {
   },
   async BM5IU(req, res) {
     try {
-      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
-      const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
+      const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1144,6 +1144,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
@@ -1154,7 +1155,6 @@ module.exports = {
               P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_BM5_ID: CheckNullInt(element.BM5_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1166,21 +1166,39 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1381,7 +1399,7 @@ module.exports = {
         ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM6.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1400,8 +1418,8 @@ module.exports = {
   },
   async BM6IU(req, res) {
     try {
-      const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM6log = `BEGIN AUD_STAT.NEW_BM6_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM6_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_CREATED_BY); END;`;
+      const queryBM6log = `BEGIN AUD_STAT.NEW_BM6_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM6_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1412,6 +1430,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1421,7 +1440,6 @@ module.exports = {
               P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_BM6_ID: CheckNullInt(element.BM6_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1433,21 +1451,39 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1649,7 +1685,7 @@ module.exports = {
         ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM7.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1668,8 +1704,8 @@ module.exports = {
   },
   async BM7IU(req, res) {
     try {
-      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
-      const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
+      const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1680,6 +1716,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
@@ -1690,7 +1727,6 @@ module.exports = {
               P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_BM7_ID: CheckNullInt(element.BM7_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1702,21 +1738,39 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1926,7 +1980,7 @@ module.exports = {
         ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1945,8 +1999,8 @@ module.exports = {
   },
   async BM8IU(req, res) {
     try {
-      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_CREATED_BY); END;`;
-      const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_CREATED_BY); END;`;
+      const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
       let log = [];
@@ -1957,6 +2011,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_TRANSFER_AMOUNT: CheckNullFloat(element.TRANSFER_AMOUNT),
               P_TRANSFER_DESC: element.TRANSFER_DESC,
