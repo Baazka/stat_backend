@@ -200,11 +200,9 @@ module.exports = {
   },
   async BM1IU(req, res) {
     try {
-      const queryBM1 = `BEGIN AUD_STAT.NEW_BM1_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_EXPERT_ATTEND, :P_IS_PRESS_REPORT, :P_WORK_PEOPLE, :P_WORK_DAY, :P_WORK_TIME, :P_CREATED_BY); END;`;
-      const queryBM1log = `BEGIN AUD_STAT.NEW_BM1_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM1_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
+      const queryBM1 = `BEGIN AUD_STAT.NEW_BM1_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_EXPERT_ATTEND, :P_IS_PRESS_REPORT, :P_WORK_PEOPLE, :P_WORK_DAY, :P_WORK_TIME, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -217,15 +215,9 @@ module.exports = {
               P_WORK_PEOPLE: CheckNullInt(element.WORK_PEOPLE),
               P_WORK_DAY: CheckNullInt(element.WORK_DAY),
               P_WORK_TIME: CheckNullInt(element.WORK_TIME),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM1_ID: CheckNullInt(element.ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -253,7 +245,7 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM1, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
+      //const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -365,11 +357,9 @@ module.exports = {
   },
   async BM2IU(req, res) {
     try {
-      const queryBM2 = `BEGIN AUD_STAT.NEW_BM2_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM2log = `BEGIN AUD_STAT.NEW_BM2_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM2_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_CREATED_BY); END;`;
+      const queryBM2 = `BEGIN AUD_STAT.NEW_BM2_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -377,16 +367,9 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM2_ID: CheckNullInt(element.ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -412,7 +395,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM2, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM2log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -579,11 +561,10 @@ module.exports = {
   },
   async BM3IU(req, res) {
     try {
-      const queryBM3 = `BEGIN AUD_STAT.NEW_BM3_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM3log = `BEGIN AUD_STAT.NEW_BM3_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM3_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM3 = `BEGIN AUD_STAT.NEW_BM3_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -591,16 +572,9 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -637,7 +611,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM3, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM3log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -846,11 +819,10 @@ module.exports = {
   },
   async BM4IU(req, res) {
     try {
-      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_CREATED_BY); END;`;
-      const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
+      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -859,15 +831,9 @@ module.exports = {
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_ID_7_1: CheckNullInt(element.ID_7_1),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_BM4_ID: CheckNullInt(element.ID),
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -882,7 +848,6 @@ module.exports = {
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
 
-              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
               P_SOLUTION: CheckNullInt(element.SOLUTION),
               P_SOLUTION_NAME: element.SOLUTION_NAME,
@@ -1132,11 +1097,9 @@ module.exports = {
   },
   async BM5IU(req, res) {
     try {
-      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
-      const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
+      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1146,15 +1109,10 @@ module.exports = {
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM5_ID: CheckNullInt(element.BM5_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
+
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1169,7 +1127,6 @@ module.exports = {
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
 
-              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
               P_SOLUTION: CheckNullInt(element.SOLUTION),
               P_SOLUTION_NAME: element.SOLUTION_NAME,
@@ -1209,7 +1166,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM5, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM5log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1418,11 +1374,10 @@ module.exports = {
   },
   async BM6IU(req, res) {
     try {
-      const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_CREATED_BY); END;`;
-      const queryBM6log = `BEGIN AUD_STAT.NEW_BM6_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM6_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
+      const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1431,15 +1386,9 @@ module.exports = {
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_ID_7_1: CheckNullInt(element.ID_7_1),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM6_ID: CheckNullInt(element.BM6_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1454,7 +1403,6 @@ module.exports = {
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
 
-              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
               P_SOLUTION: CheckNullInt(element.SOLUTION),
               P_SOLUTION_NAME: element.SOLUTION_NAME,
@@ -1494,7 +1442,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM6, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM6log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1704,11 +1651,9 @@ module.exports = {
   },
   async BM7IU(req, res) {
     try {
-      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
-      const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
+      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1718,15 +1663,9 @@ module.exports = {
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
               P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM7_ID: CheckNullInt(element.BM7_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1741,7 +1680,6 @@ module.exports = {
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
 
-              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
               P_SOLUTION: CheckNullInt(element.SOLUTION),
               P_SOLUTION_NAME: element.SOLUTION_NAME,
@@ -1781,7 +1719,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM7, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM7log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1999,11 +1936,10 @@ module.exports = {
   },
   async BM8IU(req, res) {
     try {
-      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_CREATED_BY); END;`;
-      const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ID_7_1, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
+      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -2023,16 +1959,9 @@ module.exports = {
               P_LAW_REJECTED_AMOUNT: CheckNullFloat(
                 element.LAW_REJECTED_AMOUNT
               ),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM8_ID: CheckNullInt(element.BM8_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -2069,7 +1998,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM8, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM8log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
