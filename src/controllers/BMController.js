@@ -21,6 +21,7 @@ const FindIDs = `SELECT DEPARTMENT_ID, FP.PERIOD_ID FROM AUD_STAT.STAT_AUDIT SA
 INNER JOIN AUD_STAT.REF_PERIOD P ON SA.PERIOD_ID = P.ID
 INNER JOIN FAS_ADMIN.REF_PERIOD FP ON P.PERIOD_YEAR = FP.YEAR_LABEL
 WHERE SA.ID = :P_ID`;
+const CheckSchedule = `SELECT COUNT(*) CNT FROM AUD_STAT.STAT_AUDIT_TEAM WHERE IS_ACTIVE = 1 AND STAT_AUDIT_ID = :STAT_AUDIT_ID AND AUDITOR_ID = :AUDITOR_ID`;
 
 module.exports = {
   async BM1List(req, res) {
@@ -33,6 +34,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
       BM1.ID,
@@ -170,15 +182,16 @@ module.exports = {
       
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID 
       `;
-
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
@@ -265,6 +278,17 @@ module.exports = {
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
+
       let ListQuery = `SELECT
       BM2.ID,
       FAS.FAS_AUDIT_ID AUDIT_ID,
@@ -327,14 +351,16 @@ module.exports = {
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID 
       `;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
@@ -413,6 +439,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
       BM3.ID,
@@ -532,14 +569,16 @@ module.exports = {
         WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
@@ -629,6 +668,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM4.ID,
@@ -790,14 +840,16 @@ module.exports = {
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 315
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM4.ID_7_1 = FAS.ID_7_1
@@ -906,6 +958,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM5.ID,
@@ -1068,14 +1131,16 @@ module.exports = {
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 316
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM5.ID_7_1 = FAS.ID_7_1
@@ -1184,6 +1249,16 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM6.ID,
@@ -1345,14 +1420,16 @@ module.exports = {
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 318
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM6.ID_7_1 = FAS.ID_7_1
@@ -1460,6 +1537,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM7.ID,        
@@ -1622,14 +1710,16 @@ module.exports = {
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 317
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM7.ID_7_1 = FAS.ID_7_1
@@ -1737,6 +1827,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM8.ID,
@@ -1907,14 +2008,16 @@ module.exports = {
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 319
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
