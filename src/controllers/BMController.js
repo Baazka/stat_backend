@@ -21,6 +21,7 @@ const FindIDs = `SELECT DEPARTMENT_ID, FP.PERIOD_ID FROM AUD_STAT.STAT_AUDIT SA
 INNER JOIN AUD_STAT.REF_PERIOD P ON SA.PERIOD_ID = P.ID
 INNER JOIN FAS_ADMIN.REF_PERIOD FP ON P.PERIOD_YEAR = FP.YEAR_LABEL
 WHERE SA.ID = :P_ID`;
+const CheckSchedule = `SELECT COUNT(*) CNT FROM AUD_STAT.STAT_AUDIT_TEAM WHERE IS_ACTIVE = 1 AND STAT_AUDIT_ID = :STAT_AUDIT_ID AND AUDITOR_ID = :AUDITOR_ID`;
 
 module.exports = {
   async BM1List(req, res) {
@@ -33,6 +34,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
       BM1.ID,
@@ -170,15 +182,16 @@ module.exports = {
       
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID 
       `;
-
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
@@ -200,11 +213,9 @@ module.exports = {
   },
   async BM1IU(req, res) {
     try {
-      const queryBM1 = `BEGIN AUD_STAT.NEW_BM1_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_EXPERT_ATTEND, :P_IS_PRESS_REPORT, :P_WORK_PEOPLE, :P_WORK_DAY, :P_WORK_TIME, :P_CREATED_BY); END;`;
-      const queryBM1log = `BEGIN AUD_STAT.NEW_BM1_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM1_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
+      const queryBM1 = `BEGIN AUD_STAT.NEW_BM1_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_EXPERT_ATTEND, :P_IS_PRESS_REPORT, :P_WORK_PEOPLE, :P_WORK_DAY, :P_WORK_TIME, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_AUDIT_LEAD, :P_AUDIT_MEMBER, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -217,15 +228,9 @@ module.exports = {
               P_WORK_PEOPLE: CheckNullInt(element.WORK_PEOPLE),
               P_WORK_DAY: CheckNullInt(element.WORK_DAY),
               P_WORK_TIME: CheckNullInt(element.WORK_TIME),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM1_ID: CheckNullInt(element.ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -253,7 +258,7 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM1, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
+      //const resultLog = await OracleDB.multipleExecute(queryBM1log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -272,6 +277,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT
       BM2.ID,
@@ -335,14 +351,16 @@ module.exports = {
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID 
       `;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
@@ -365,11 +383,9 @@ module.exports = {
   },
   async BM2IU(req, res) {
     try {
-      const queryBM2 = `BEGIN AUD_STAT.NEW_BM2_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM2log = `BEGIN AUD_STAT.NEW_BM2_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM2_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_CREATED_BY); END;`;
+      const queryBM2 = `BEGIN AUD_STAT.NEW_BM2_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_DEPARTMENT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -377,16 +393,9 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM2_ID: CheckNullInt(element.ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -412,7 +421,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM2, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM2log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -431,6 +439,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
       BM3.ID,
@@ -550,14 +569,16 @@ module.exports = {
         WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
       ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
@@ -579,11 +600,10 @@ module.exports = {
   },
   async BM3IU(req, res) {
     try {
-      const queryBM3 = `BEGIN AUD_STAT.NEW_BM3_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM3log = `BEGIN AUD_STAT.NEW_BM3_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM3_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM3 = `BEGIN AUD_STAT.NEW_BM3_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -591,16 +611,9 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM3_ID: CheckNullInt(element.ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -637,7 +650,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM3, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM3log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -656,6 +668,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM4.ID,
@@ -752,7 +775,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION != 341
         UNION
@@ -781,7 +807,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION IS NOT NULL
         UNION
@@ -810,24 +839,29 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON B.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         ) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 315
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM4.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -846,11 +880,10 @@ module.exports = {
   },
   async BM4IU(req, res) {
     try {
-      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM4log = `BEGIN AUD_STAT.NEW_BM4_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM4_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM4 = `BEGIN AUD_STAT.NEW_BM4_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -858,16 +891,10 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_BM4_ID: CheckNullInt(element.ID),
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -882,7 +909,6 @@ module.exports = {
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
 
-              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
               P_SOLUTION: CheckNullInt(element.SOLUTION),
               P_SOLUTION_NAME: element.SOLUTION_NAME,
@@ -941,6 +967,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM5.ID,
@@ -1038,7 +1075,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION != 341
         UNION
@@ -1067,7 +1107,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION IS NOT NULL
         UNION
@@ -1096,24 +1139,29 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON B.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         ) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 316
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM5.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1132,11 +1180,9 @@ module.exports = {
   },
   async BM5IU(req, res) {
     try {
-      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
-      const queryBM5log = `BEGIN AUD_STAT.NEW_BM5_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM5_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM5 = `BEGIN AUD_STAT.NEW_BM5_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1144,17 +1190,12 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM5_ID: CheckNullInt(element.BM5_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
+
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1166,21 +1207,38 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1191,7 +1249,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM5, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM5log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1210,6 +1267,16 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM6.ID,
@@ -1306,7 +1373,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION != 341
         UNION
@@ -1335,7 +1405,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION IS NOT NULL
         UNION
@@ -1364,24 +1437,29 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON B.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         ) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 318
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM6.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1400,11 +1478,10 @@ module.exports = {
   },
   async BM6IU(req, res) {
     try {
-      const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_CREATED_BY); END;`;
-      const queryBM6log = `BEGIN AUD_STAT.NEW_BM6_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM6_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM6 = `BEGIN AUD_STAT.NEW_BM6_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1412,16 +1489,10 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM6_ID: CheckNullInt(element.BM6_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1433,21 +1504,38 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1458,7 +1546,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM6, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM6log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1477,6 +1564,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM7.ID,        
@@ -1574,7 +1672,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION != 341
         UNION
@@ -1603,7 +1704,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION IS NOT NULL
         UNION
@@ -1632,24 +1736,29 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON B.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         ) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 317
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM7.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1668,11 +1777,9 @@ module.exports = {
   },
   async BM7IU(req, res) {
     try {
-      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_CREATED_BY); END;`;
-      const queryBM7log = `BEGIN AUD_STAT.NEW_BM7_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM7_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM7 = `BEGIN AUD_STAT.NEW_BM7_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1680,17 +1787,11 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM7_ID: CheckNullInt(element.BM7_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -1702,21 +1803,38 @@ module.exports = {
               P_ORG_REGISTER_NO: element.ORG_REGISTER_NO,
               P_BUDGET_TYPE_ID: CheckNullInt(element.BUDGET_TYPE_ID),
               P_BUDGET_SHORT_NAME: element.BUDGET_SHORT_NAME,
-              P_SALBAR_ANGILAL: element.SALBAR_ANGILAL,
               P_CHECK_DEPARTMENT_NAME: element.CHECK_DEPARTMENT_NAME,
               P_AUDIT_DEPARTMENT_NAME: element.AUDIT_DEPARTMENT_NAME,
-              P_IS_ZALRUULAH: CheckNullInt(element.IS_ZALRUULAH),
-              P_IS_ZALRUULAH_NAME: element.IS_ZALRUULAH_NAME,
+
               P_ALD_SHORT_DESC: element.ALD_SHORT_DESC,
+              P_SOLUTION: CheckNullInt(element.SOLUTION),
+              P_SOLUTION_NAME: element.SOLUTION_NAME,
               P_AMOUNT: CheckNullFloat(element.AMOUNT),
-              P_IS_SUB_ERROR_CONFLICT: CheckNullInt(
-                element.IS_SUB_ERROR_CONFLICT
-              ),
-              P_IS_SUB_ERROR_CONFLICT_NAME: element.IS_SUB_ERROR_CONFLICT_NAME,
+
+              P_IS_ERROR_CONFLICT: CheckNullInt(element.IS_ERROR_CONFLICT),
+              P_IS_ERROR_CONFLICT_NAME: element.IS_ERROR_CONFLICT_NAME,
+              P_SOLUTION_ERROR: CheckNullInt(element.SOLUTION_ERROR),
+              P_SOLUTION_ERROR_NAME: element.SOLUTION_ERROR_NAME,
               P_UR_UGUUJ: CheckNullInt(element.UR_UGUUJ),
               P_UR_UGUUJ_NAME: element.UR_UGUUJ_NAME,
-              P_UR_UGUUJ_TYPE: CheckNullInt(element.AUDIT_DEPARTMENT_NAME),
-              P_UR_UGUUJ_TYPE_NAME: element.AUDIT_DEPARTMENT_NAME,
+              P_UR_UGUUJ_TYPE: CheckNullInt(element.UR_UGUUJ_TYPE),
+              P_UR_UGUUJ_TYPE_NAME: element.UR_UGUUJ_TYPE_NAME,
+
+              P_AKT_DATE: element.AKT_DATE,
+              P_AKT_NO: element.AKT_NO,
+              P_SHORT_DESC: element.SHORT_DESC,
+              P_COMPLETION_DATE: element.COMPLETION_DATE,
+              P_USER_ID: CheckNullInt(element.USER_ID),
+              P_AUDITOR_NAME: element.AUDITOR_NAME,
+              P_AUDITOR_CODE: element.AUDITOR_CODE,
+              P_MO_DATE: element.MO_DATE,
+              P_MO_AMOUNT: CheckNullFloat(element.MO_AMOUNT),
+              P_ACCOUNT_TYPE: CheckNullInt(element.ACCOUNT_TYPE),
+              P_ACCOUNT_TYPE_NAME: element.ACCOUNT_TYPE_NAME,
+              P_FULL_NAME: element.FULL_NAME,
+              P_EXEC_DATE: element.EXEC_DATE,
+              P_NEXT_AMOUNT: CheckNullFloat(element.NEXT_AMOUNT),
+              P_DATE_CNT: CheckNullInt(element.DATE_CNT),
               P_CREATED_BY: parseInt(req.body.CREATED_BY),
             });
           });
@@ -1727,7 +1845,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM7, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM7log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1746,6 +1863,17 @@ module.exports = {
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
 
       let ListQuery = `SELECT 
         BM8.ID,
@@ -1851,7 +1979,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION != 341
         UNION
@@ -1880,7 +2011,10 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON A.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND A.SOLUTION IS NOT NULL
         UNION
@@ -1909,24 +2043,29 @@ module.exports = {
         LEFT JOIN FAS_ADMIN.REF_SOLUTION_ERROR V10 ON B.SOLUTION_ERROR = V10.ID
         LEFT JOIN FAS_ADMIN.REF_DOCUMENT_INDICATOR_VALUE V4 ON C.ACCOUNT_TYPE = V4.ID
         LEFT JOIN FAS_ADMIN.AKT_MONITORING M ON C.ID = M.SEVEN_ONE_ID AND M.IS_ACTIVE = 1
-        LEFT JOIN FAS_ADMIN.AKT_EXECUTION_LIST EL ON C.ID = EL.SEVEN_ONE_ID AND EL.IS_ACTIVE = 1 AND EL.PERIOD_TYPE = 1
+        LEFT JOIN (SELECT SEVEN_ONE_ID,  MAX(EXEC_DATE) EXEC_DATE  
+      FROM FAS_ADMIN.AKT_EXECUTION_LIST 
+      WHERE IS_ACTIVE = 1 AND PERIOD_TYPE = 1 
+      GROUP BY SEVEN_ONE_ID) EL ON C.ID = EL.SEVEN_ONE_ID
         LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         WHERE A.IS_ACTIVE = 1 AND B.SOLUTION != 341
         ) A ON FA.ID = A.FAS_AUDIT_ID
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 319
       AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
 
-      if (
-        req.body.USER_TYPE_NAME === "ADMIN" ||
-        req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
-      ) {
-      } else {
-        params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-        ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1945,11 +2084,10 @@ module.exports = {
   },
   async BM8IU(req, res) {
     try {
-      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_CREATED_BY); END;`;
-      const queryBM8log = `BEGIN AUD_STAT.NEW_BM8_LOG_I_U(:P_ID, :P_AUDIT_ID, :P_BM8_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_SALBAR_ANGILAL, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_IS_ZALRUULAH, :P_IS_ZALRUULAH_NAME, :P_ALD_SHORT_DESC, :P_AMOUNT, :P_IS_SUB_ERROR_CONFLICT, :P_IS_SUB_ERROR_CONFLICT_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_CREATED_BY); END;`;
+      const queryBM8 = `BEGIN AUD_STAT.NEW_BM8_I_U(:P_ID, :P_AUDIT_ID, :P_AUDIT_TYPE_ID, :P_ID_7_1, :P_IS_TRANSFER, :P_TRANSFER_AMOUNT, :P_TRANSFER_DESC, :P_TRANSFER_ORG, :P_TRANSFER_DOC_NO, :P_PERSON_POSITION, :P_LAW_FULL_AMOUNT, :P_LAW_UNDER_AMOUNT, :P_LAW_REJECTED_AMOUNT, :P_LOG_ID, :P_AUDIT_TYPE_NAME, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_FORM_TYPE_ID, :P_AUDIT_TYPE, :P_AUDIT_ORG_TYPE, :P_AUDIT_ORG_CHECK_NAME, :P_ENT_NAME, :P_ORG_REGISTER_NO, :P_BUDGET_TYPE_ID, :P_BUDGET_SHORT_NAME, :P_CHECK_DEPARTMENT_NAME, :P_AUDIT_DEPARTMENT_NAME, :P_ALD_SHORT_DESC, :P_SOLUTION, :P_SOLUTION_NAME, :P_AMOUNT, :P_IS_ERROR_CONFLICT, :P_IS_ERROR_CONFLICT_NAME, :P_SOLUTION_ERROR, :P_SOLUTION_ERROR_NAME, :P_UR_UGUUJ, :P_UR_UGUUJ_NAME, :P_UR_UGUUJ_TYPE, :P_UR_UGUUJ_TYPE_NAME, :P_AKT_DATE, :P_AKT_NO, :P_SHORT_DESC, :P_COMPLETION_DATE, :P_USER_ID, :P_AUDITOR_NAME, :P_AUDITOR_CODE, :P_MO_DATE, :P_MO_AMOUNT, :P_ACCOUNT_TYPE, :P_ACCOUNT_TYPE_NAME, :P_FULL_NAME, :P_EXEC_DATE, :P_NEXT_AMOUNT, :P_DATE_CNT, :P_CREATED_BY); END;`;
 
       let data = [];
-      let log = [];
+
       function getData(req) {
         if (req.body.data?.length > 0) {
           req.body.data?.forEach((element) => {
@@ -1957,6 +2095,7 @@ module.exports = {
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
               P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_ID_7_1: CheckNullInt(element.ID_7_1),
               P_IS_TRANSFER: CheckNullInt(element.IS_TRANSFER),
               P_TRANSFER_AMOUNT: CheckNullFloat(element.TRANSFER_AMOUNT),
               P_TRANSFER_DESC: element.TRANSFER_DESC,
@@ -1968,16 +2107,9 @@ module.exports = {
               P_LAW_REJECTED_AMOUNT: CheckNullFloat(
                 element.LAW_REJECTED_AMOUNT
               ),
-              P_CREATED_BY: parseInt(req.body.CREATED_BY),
-            });
-          });
 
-          req.body.data?.forEach((element) => {
-            log.push({
-              P_ID: element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
-              P_AUDIT_ID: CheckNullInt(element.AUDIT_ID),
-              P_BM8_ID: CheckNullInt(element.BM8_ID),
-              P_AUDIT_TYPE_ID: CheckNullInt(element.AUDIT_TYPE_ID),
+              P_LOG_ID:
+                element.LOG_ID != null ? parseInt(element.LOG_ID) : null,
               P_AUDIT_TYPE_NAME: element.AUDIT_TYPE_NAME,
               P_AUDIT_NAME: element.AUDIT_NAME,
               P_AUDIT_CODE: element.AUDIT_CODE,
@@ -2014,7 +2146,6 @@ module.exports = {
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM8, data);
-      const resultLog = await OracleDB.multipleExecute(queryBM8log, log);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
