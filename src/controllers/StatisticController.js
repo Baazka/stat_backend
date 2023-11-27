@@ -231,7 +231,14 @@ module.exports = {
         WHERE SA.ID = :P_ID`;
 
       const result = await OracleDB.simpleExecute(AuditStatus, params);
-      return res.send(result.rows[0]);
+
+      let stat_role = `SELECT AT.AUDITOR_ID, SU.USER_NAME, AT.ROLE_ID, R.ROLE_NAME FROM AUD_STAT.STAT_AUDIT_TEAM AT
+      LEFT JOIN AUD_REG.SYSTEM_USER SU ON AT.AUDITOR_ID = SU.USER_ID
+      LEFT JOIN AUD_STAT.REF_ROLE R ON AT.ROLE_ID = R.ID
+      WHERE AT.IS_ACTIVE = 1 AND AT.STAT_AUDIT_ID = :P_ID`
+
+      const result_role = await OracleDB.simpleExecute(stat_role, params);
+      return res.send({STATUS:result.rows[0],ROLE: result_role.rows});
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
