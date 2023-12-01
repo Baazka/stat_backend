@@ -462,7 +462,7 @@ module.exports = {
 
       let ListQuery = `SELECT 
         BM3.ID,
-        L.ID = LOG_ID,
+        L.ID LOG_ID,
         FAS.FAS_AUDIT_ID AUDIT_ID,
         
         FAS.AUDIT_TYPE_ID,
