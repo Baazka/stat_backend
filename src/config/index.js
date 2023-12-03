@@ -6,7 +6,7 @@ const ORACLE_DB_USER = process.env.ORACLE_DB_USER;
 const ORACLE_DB_PASSWORD = process.env.ORACLE_DB_PASSWORD;
 const ORACLE_CONNECTION = process.env.ORACLE_CONNECTION;
 const bodyParserOptions = {
-  limit: "50mb",
+  limit: "100mb",
   extended: true,
   parameterLimit: 1000000,
 };
