@@ -5,8 +5,6 @@ const { CheckNullInt, DateFormat } = require("../utils/Helper");
 module.exports = {
   async NotificationList(req, res) {
     try {
-      const ProcessID = req.query.ProcessID;
-
       let ListQuery = `SELECT SN.ID, SN.AUDIT_ID, SN.DOCUMENT_ID, SN.CREATED_BY, SN.CREATED_DATE, SN.IS_SHOW, SN.REQUEST_TYPE, SN.DESCRIPTION, SN.ROLE_ID,
         RD.DOCUMENT_SHORT_NAME, RD.DOCUMENT_NAME, SU.USER_NAME, TD.AUDITOR_ID, 
         SN.MODULE_ID
