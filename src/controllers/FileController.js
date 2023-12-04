@@ -25,7 +25,7 @@ const upload = async (req, res) => {
   } catch (err) {
     if (err.code == "LIMIT_FILE_SIZE") {
       return res
-        .status(200)
+        .status(413)
         .send({ status: 413, message: "100MB-с их хэмжээтэй байна!" });
     }
     res.status(500).send({
