@@ -2336,36 +2336,16 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
 
       let params = {};
-      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
       params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
-      let ScheduleData = {
-        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
-        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
-      };
-      const resultCheckSchedule = await OracleDB.simpleExecute(
-        CheckSchedule,
-        ScheduleData
-      );
-      const isCheckSchedule =
-        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
-
-      let ListQuery = ``;
-
-      if (!isCheckSchedule) {
-        if (
-          req.body.USER_TYPE_NAME === "ADMIN" ||
-          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
-        ) {
-        } else {
-          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
-          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
-        }
-      }
-
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
-                    \n ORDER BY FAS.FAS_AUDIT_ID`;
+      let ListQuery = `SELECT BM10.ID, L.AUDIT_TYPE_NAME, L.AUDIT_ORG_CHECK_NAME, L.BUDGET_SHORT_NAME, BM10.EXPERT_TYPE_ID, BM10.EXPERT_NAME, BM10.DEPARTMENT_ID, BM10.EXPERT_REASON_ID, BM10.INVOLVED_DIRECTION, BM10.WORK_MOUNT, BM10.EXPERT_AMOUNT, BM10.AUDIT_AMOUNT
+      FROM AUD_STAT.NEW_BM1_DATA BM1
+      INNER JOIN AUD_STAT.NEW_BM1_LOG L ON L.BM1_ID = BM1.ID
+      LEFT JOIN AUD_STAT.NEW_BM10_DATA BM10 ON BM10.BM1_ID = BM1.ID
+      INNER JOIN FAS_ADMIN.FAS_AUDIT FA ON BM1.AUDIT_ID = FA.ID
+      WHERE BM1.IS_ACTIVE = 1 AND IS_EXPERT_ATTEND = 1`;
+      ListQuery += `\n AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
+      ListQuery += `\n ORDER BY BM1.ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -2383,7 +2363,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
   },
   async BM10IU(req, res) {
     try {
-      const queryBM10 = `BEGIN AUD_STAT.NEW_BM10_I_U(:P_ID, :P_BM1_ID, :P_DEPARTMENT_ID, :P_EXPERT_TYPE_ID, :P_EXPERT_REASON_ID, :P_INVOLVED_DIRECTION, :P_WORK_MOUNT, :P_EXPERT_AMOUNT, :P_AUDIT_AMOUNT, :P_CREATED_BY); END;`;
+      const queryBM10 = `BEGIN AUD_STAT.NEW_BM10_I_U(:P_ID, :P_BM1_ID, :P_EXPERT_TYPE_ID, :P_EXPERT_NAME, :P_DEPARTMENT_ID, :P_EXPERT_REASON_ID, :P_INVOLVED_DIRECTION, :P_WORK_MOUNT, :P_EXPERT_AMOUNT, :P_AUDIT_AMOUNT, :P_CREATED_BY); END;`;
 
       let data = [];
 
@@ -2393,8 +2373,9 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
             data.push({
               P_ID: element.ID != null ? parseInt(element.ID) : null,
               P_BM1_ID: CheckNullInt(element.BM1_ID),
-              P_DEPARTMENT_ID: CheckNullInt(element.DEPARTMENT_ID),
               P_EXPERT_TYPE_ID: CheckNullInt(element.EXPERT_TYPE_ID),
+              P_EXPERT_NAME: element.EXPERT_NAME,
+              P_DEPARTMENT_ID: CheckNullInt(element.DEPARTMENT_ID),
               P_EXPERT_REASON_ID: CheckNullInt(element.EXPERT_REASON_ID),
               P_INVOLVED_DIRECTION: element.INVOLVED_DIRECTION,
               P_WORK_MOUNT: CheckNullInt(element.WORK_MOUNT),
