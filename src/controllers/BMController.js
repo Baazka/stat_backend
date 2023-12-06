@@ -2202,4 +2202,220 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async BM9List(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      //const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
+
+      let ListQuery = `SELECT BM9.ID, BM9.PERIOD_ID, P.YEAR_LABEL, BM9.AUDIT_TYPE_ID, RAT.AUDIT_TYPE_NAME, BM9.AUDIT_NAME, BM9.AUDIT_CODE, BM9.DELIVERED_DATE, BM9.EXECUTION_DATE,  
+      BM9.IS_ERROR_CONFLICT, ERROR_CONFLICT_NAME, BM9.SHORT_DESC, BM9.AMOUNT, BM9.SOLUTION, RS.SOLUTION_NAME,
+      BM9.ENT_ID, AE.ENT_NAME, AO.ORG_REGISTER_NO, RBT.BUDGET_SHORT_NAME, BM9.VIOLATION_FULLNAME, BM9.VIOLATION_POSITION, BM9.REALIZATION_AMOUNT, BM9.UNEXERCISED_AMOUNT, BM9.UNEXERCISED_DESC
+      FROM AUD_STAT.NEW_BM9_DATA BM9
+      INNER JOIN FAS_ADMIN.REF_PERIOD P ON BM9.PERIOD_ID = P.PERIOD_ID
+      INNER JOIN AUD_STAT.REF_AUDIT_TYPE RAT ON BM9.AUDIT_TYPE_ID = RAT.AUDIT_TYPE_ID
+      INNER JOIN AUD_STAT.REF_ERROR_CONFLICT REC ON BM9.IS_ERROR_CONFLICT = REC.ERROR_CONFLICT_ID
+      INNER JOIN AUD_STAT.REF_SOLUTION RS ON BM9.SOLUTION = RS.SOLUTION_ID
+      INNER JOIN AUD_ORG.AUDIT_ENTITY AE ON BM9.ENT_ID = AE.ENT_ID AND AE.IS_ACTIVE = 1
+      INNER JOIN AUD_ORG.AUDIT_ORGANIZATION AO ON AE.ENT_ORG_ID = AO.ORG_ID AND AO.IS_ACTIVE = 1
+      INNER JOIN AUD_ORG.REF_BUDGET_TYPE RBT ON AE.ENT_BUDGET_TYPE = RBT.BUDGET_TYPE_ID
+      WHERE BM9.IS_ACTIVE = 1`;
+
+      // if (!isCheckSchedule) {
+      //   if (
+      //     req.body.USER_TYPE_NAME === "ADMIN" ||
+      //     req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+      //     req.body.USER_TYPE_NAME === "STAT_ADMIN"
+      //   ) {
+      //   } else {
+      //     params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+      //     ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+      //   }
+      // }
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9IU(req, res) {
+    try {
+      const queryBM9 = `BEGIN AUD_STAT.NEW_BM9_I_U(:P_ID, :P_PERIOD_ID, :P_AUDIT_TYPE_ID, :P_AUDIT_NAME, :P_AUDIT_CODE, :P_DELIVERED_DATE, :P_EXECUTION_DATE, :P_IS_ERROR_CONFLICT, :P_SHORT_DESC, :P_AMOUNT, :P_SOLUTION, :P_ENT_ID, :P_VIOLATION_FULLNAME, :P_VIOLATION_POSITION, :P_REALIZATION_AMOUNT, :P_UNEXERCISED_AMOUNT, :P_UNEXERCISED_DESC, :P_CREATED_BY); END;`;
+
+      let data = {};
+
+      function getData(req) {
+        data = {
+          P_ID: req.body.ID != null ? parseInt(req.body.ID) : null,
+          P_PERIOD_ID: CheckNullInt(req.body.PERIOD_ID),
+          P_AUDIT_TYPE_ID: CheckNullInt(req.body.AUDIT_TYPE_ID),
+          P_AUDIT_NAME: req.body.AUDIT_NAME,
+          P_AUDIT_CODE: req.body.AUDIT_CODE,
+          P_DELIVERED_DATE: DateFormat(req.body.DELIVERED_DATE),
+          P_EXECUTION_DATE: DateFormat(req.body.EXECUTION_DATE),
+          P_IS_ERROR_CONFLICT: CheckNullInt(req.body.IS_ERROR_CONFLICT),
+          P_SHORT_DESC: req.body.SHORT_DESC,
+          P_AMOUNT: CheckNullFloat(req.body.AMOUNT),
+          P_SOLUTION: CheckNullInt(req.body.SOLUTION),
+          P_ENT_ID: CheckNullInt(req.body.ENT_ID),
+          P_VIOLATION_FULLNAME: req.body.VIOLATION_FULLNAME,
+          P_VIOLATION_POSITION: req.body.VIOLATION_POSITION,
+          P_REALIZATION_AMOUNT: CheckNullFloat(req.body.REALIZATION_AMOUNT),
+          P_UNEXERCISED_AMOUNT: CheckNullFloat(req.body.UNEXERCISED_AMOUNT),
+          P_UNEXERCISED_DESC: req.body.UNEXERCISED_DESC,
+          P_CREATED_BY: parseInt(req.body.CREATED_BY),
+        };
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.multipleExecute(queryBM9, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9Remove(req, res) {
+    try {
+      const queryBM9Remove = `UPDATE AUD_STAT.NEW_BM9_DATA
+      SET IS_ACTIVE = 0,
+          REMOVE_DESC = :P_REMOVE_DESC,
+          UPDATED_BY = :P_CREATED_BY,
+          UPDATED_DATE = SYSDATE
+      WHERE ID = :P_ID `;
+
+      let data = {};
+
+      data = {
+        P_ID: parseInt(req.body.ID),
+        P_REMOVE_DESC: req.body.REMOVE_DESC,
+        P_CREATED_BY: parseInt(req.body.CREATED_BY),
+      };
+
+      const result = await OracleDB.multipleExecute(queryBM9Remove, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM10List(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
+
+      let ListQuery = ``;
+
+      if (!isCheckSchedule) {
+        if (
+          req.body.USER_TYPE_NAME === "ADMIN" ||
+          req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
+          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        ) {
+        } else {
+          params.P_USER_ID = parseInt(req.body.USER_ID, 10);
+          ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM FAS_ADMIN.FAS_AUDIT_TEAM_DATA FATD2 WHERE ROLE_ID IN (2,3,4,5,6) AND FATD2.IS_ACTIVE = 1 AND FATD2.AUDITOR_ID = :P_USER_ID AND FATD2.FAS_AUDIT_ID = FA.ID )`;
+        }
+      }
+
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
+                    \n ORDER BY FAS.FAS_AUDIT_ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM10IU(req, res) {
+    try {
+      const queryBM10 = `BEGIN AUD_STAT.NEW_BM10_I_U(:P_ID, :P_BM1_ID, :P_DEPARTMENT_ID, :P_EXPERT_TYPE_ID, :P_EXPERT_REASON_ID, :P_INVOLVED_DIRECTION, :P_WORK_MOUNT, :P_EXPERT_AMOUNT, :P_AUDIT_AMOUNT, :P_CREATED_BY); END;`;
+
+      let data = [];
+
+      function getData(req) {
+        if (req.body.data?.length > 0) {
+          req.body.data?.forEach((element) => {
+            data.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_BM1_ID: CheckNullInt(element.BM1_ID),
+              P_DEPARTMENT_ID: CheckNullInt(element.DEPARTMENT_ID),
+              P_EXPERT_TYPE_ID: CheckNullInt(element.EXPERT_TYPE_ID),
+              P_EXPERT_REASON_ID: CheckNullInt(element.EXPERT_REASON_ID),
+              P_INVOLVED_DIRECTION: element.INVOLVED_DIRECTION,
+              P_WORK_MOUNT: CheckNullInt(element.WORK_MOUNT),
+              P_EXPERT_AMOUNT: CheckNullFloat(element.EXPERT_AMOUNT),
+              P_AUDIT_AMOUNT: CheckNullFloat(element.AUDIT_AMOUNT),
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.multipleExecute(queryBM10, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };

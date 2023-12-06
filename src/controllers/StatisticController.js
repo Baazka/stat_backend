@@ -235,10 +235,10 @@ module.exports = {
       let stat_role = `SELECT AT.AUDITOR_ID, SU.USER_NAME, AT.ROLE_ID, R.ROLE_NAME FROM AUD_STAT.STAT_AUDIT_TEAM AT
       LEFT JOIN AUD_REG.SYSTEM_USER SU ON AT.AUDITOR_ID = SU.USER_ID
       LEFT JOIN AUD_STAT.REF_ROLE R ON AT.ROLE_ID = R.ID
-      WHERE AT.IS_ACTIVE = 1 AND AT.STAT_AUDIT_ID = :P_ID`
+      WHERE AT.IS_ACTIVE = 1 AND AT.STAT_AUDIT_ID = :P_ID`;
 
       const result_role = await OracleDB.simpleExecute(stat_role, params);
-      return res.send({STATUS:result.rows[0],ROLE: result_role.rows});
+      return res.send({ STATUS: result.rows[0], ROLE: result_role.rows });
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
@@ -297,6 +297,27 @@ module.exports = {
         status: 200,
         message: "Хадгаллаа.",
       });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async getEntList(req, res) {
+    try {
+      let params = {};
+
+      let ListQuery = `SELECT AE.ENT_ID, AER.REL_ENT_NAME TEZ_NAME, AER2.REL_ENT_NAME TTZ_NAME, AE.ENT_NAME, AO.ORG_REGISTER_NO, RBT.BUDGET_SHORT_NAME, RD.DEPARTMENT_NAME
+      FROM AUD_ORG.AUDIT_ENTITY AE
+      INNER JOIN AUD_ORG.AUDIT_ORGANIZATION AO on AE.ENT_ORG_ID = AO.ORG_ID
+      INNER JOIN AUD_ORG.AUDIT_ENTITY_RELATION AER ON AE.ENT_ID = AER.ENT_ID AND AER.REL_ENT_TYPE = 1 AND AER.IS_ACTIVE = 1
+      LEFT JOIN AUD_ORG.AUDIT_ENTITY_RELATION AER2 ON AE.ENT_ID = AER2.ENT_ID AND AER2.REL_ENT_TYPE = 2 AND AER2.IS_ACTIVE = 1
+      INNER JOIN AUD_ORG.REF_DEPARTMENT RD ON AE.ENT_DEPARTMENT_ID = RD.DEPARTMENT_ID
+      INNER JOIN AUD_ORG.REF_BUDGET_TYPE RBT ON AE.ENT_BUDGET_TYPE = RBT.BUDGET_TYPE_ID
+      WHERE AO.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1
+      ORDER BY AE.ENT_DEPARTMENT_ID, AE.ENT_NAME, AO.ORG_REGISTER_NO`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+
+      return res.send(result.rows);
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
     }

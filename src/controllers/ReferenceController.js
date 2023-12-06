@@ -69,4 +69,48 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refAuditTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT AUDIT_TYPE_ID, AUDIT_TYPE_NAME FROM AUD_STAT.REF_AUDIT_TYPE WHERE IS_ACTIVE = 1 ORDER BY AUDIT_TYPE_ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refPeriodList(req, res) {
+    try {
+      const ListQuery = `SELECT PERIOD_ID, YEAR_LABEL, YEAR_NAME FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refErrorConflictList(req, res) {
+    try {
+      const ListQuery = `SELECT ERROR_CONFLICT_ID, ERROR_CONFLICT_NAME FROM AUD_STAT.REF_ERROR_CONFLICT WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refSolutionList(req, res) {
+    try {
+      const ListQuery = `SELECT SOLUTION_ID, SOLUTION_NAME FROM AUD_STAT.REF_SOLUTION WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };

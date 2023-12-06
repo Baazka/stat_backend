@@ -11,4 +11,5 @@ module.exports = (app) => {
   app.post("/getRole", StatisticController.getRole);
   app.post("/statisticLock", StatisticController.changeLock);
   app.post("/statisticRemove", StatisticController.removeStatistic);
+  app.post("/getEntList", StatisticController.getEntList);
 };
