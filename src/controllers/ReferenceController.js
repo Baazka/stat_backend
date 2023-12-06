@@ -15,7 +15,12 @@ module.exports = {
   },
   async refDepartmentList(req, res) {
     try {
-      const ListQuery = `SELECT DEPARTMENT_ID, DEPARTMENT_NAME, DEPARTMENT_SHORT_NAME FROM AUD_ORG.REF_DEPARTMENT WHERE DEPARTMENT_TYPE = 1 AND IS_ACTIVE = 1 ORDER BY DEPARTMENT_ID`;
+      const deptype = req.query.DepType;
+      const ListQuery =
+        `SELECT DEPARTMENT_ID, DEPARTMENT_NAME, DEPARTMENT_SHORT_NAME FROM AUD_ORG.REF_DEPARTMENT WHERE IS_ACTIVE = 1 AND DEPARTMENT_TYPE = ` +
+        deptype;
+
+      ListQuery += `\nORDER BY DEPARTMENT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery);
 
