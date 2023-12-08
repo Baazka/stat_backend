@@ -2224,7 +2224,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
 
       let ListQuery = `SELECT BM9.ID, BM9.PERIOD_ID, P.YEAR_LABEL, BM9.AUDIT_TYPE_ID, RAT.AUDIT_TYPE_NAME, BM9.AUDIT_NAME, BM9.AUDIT_CODE, BM9.DELIVERED_DATE, BM9.EXECUTION_DATE,  
       BM9.IS_ERROR_CONFLICT, ERROR_CONFLICT_NAME, BM9.SHORT_DESC, BM9.AMOUNT, BM9.SOLUTION, RS.SOLUTION_NAME,
-      BM9.ENT_ID, AE.ENT_NAME, AO.ORG_REGISTER_NO, RBT.BUDGET_SHORT_NAME, BM9.VIOLATION_FULLNAME, BM9.VIOLATION_POSITION, BM9.REALIZATION_AMOUNT, BM9.UNEXERCISED_AMOUNT, BM9.UNEXERCISED_DESC
+      BM9.ENT_ID, AE.ENT_NAME, AO.ORG_REGISTER_NO, RBT.BUDGET_SHORT_NAME, BM9.VIOLATION_FULLNAME, BM9.VIOLATION_POSITION, BM9.REALIZATION_AMOUNT, BM9.UNEXERCISED_AMOUNT, BM9.UNEXERCISED_DESC, BM9.CREATED_BY
       FROM AUD_STAT.NEW_BM9_DATA BM9
       INNER JOIN FAS_ADMIN.REF_PERIOD P ON BM9.PERIOD_ID = P.PERIOD_ID
       INNER JOIN AUD_STAT.REF_AUDIT_TYPE RAT ON BM9.AUDIT_TYPE_ID = RAT.AUDIT_TYPE_ID
@@ -2286,14 +2286,15 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
           P_REALIZATION_AMOUNT: CheckNullFloat(req.body.REALIZATION_AMOUNT),
           P_UNEXERCISED_AMOUNT: CheckNullFloat(req.body.UNEXERCISED_AMOUNT),
           P_UNEXERCISED_DESC: req.body.UNEXERCISED_DESC,
-          P_CREATED_BY: parseInt(req.body.CREATED_BY),
+          P_CREATED_BY: CheckNullInt(req.body.CREATED_BY),
         };
         return { data };
       }
 
       getData(req);
+   
 
-      const result = await OracleDB.multipleExecute(queryBM9, data);
+      const result = await OracleDB.simpleExecute(queryBM9, data);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -2304,6 +2305,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
   },
   async BM9Remove(req, res) {
     try {
+      
       const queryBM9Remove = `UPDATE AUD_STAT.NEW_BM9_DATA
       SET IS_ACTIVE = 0,
           REMOVE_DESC = :P_REMOVE_DESC,
@@ -2319,7 +2321,9 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         P_CREATED_BY: parseInt(req.body.CREATED_BY),
       };
 
-      const result = await OracleDB.multipleExecute(queryBM9Remove, data);
+      const result = await OracleDB.simpleExecute(queryBM9Remove, data,{
+        autoCommit: true,
+      });
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
