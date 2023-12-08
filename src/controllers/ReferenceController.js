@@ -15,10 +15,15 @@ module.exports = {
   },
   async refDepartmentList(req, res) {
     try {
-      const ListQuery = `SELECT DEPARTMENT_ID, DEPARTMENT_NAME, DEPARTMENT_SHORT_NAME FROM AUD_ORG.REF_DEPARTMENT WHERE DEPARTMENT_TYPE = 1 AND IS_ACTIVE = 1 ORDER BY DEPARTMENT_ID`;
+      const deptype = req.query.DepType;
+
+      let ListQuery =
+        `SELECT DEPARTMENT_ID, DEPARTMENT_NAME, DEPARTMENT_SHORT_NAME FROM AUD_ORG.REF_DEPARTMENT WHERE IS_ACTIVE = 1 AND DEPARTMENT_TYPE =  ` +
+        deptype;
+
+      ListQuery += `\nORDER BY DEPARTMENT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery);
-
       return res.send(result.rows);
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);
@@ -63,7 +68,6 @@ module.exports = {
       ListQuery += `\nORDER BY DOCUMENT_ORDER`;
 
       const result = await OracleDB.simpleExecute(ListQuery);
-
       return res.send(result.rows);
     } catch (err) {
       return errorFunction.saveErrorAndSend(req, res, err);

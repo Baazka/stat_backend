@@ -3,7 +3,7 @@ const ReferenceController = require("../controllers/ReferenceController");
 
 module.exports = (app) => {
   app.get("/refPeriod", ReferenceController.refPeriodList);
-  app.get("/refDepartment", ReferenceController.refDepartmentList);
+  app.get("/refDepartment?:DepType", ReferenceController.refDepartmentList);
   app.post("/refEmployee", ReferenceController.refEmployeeList);
   app.get("/refDocument?:DocType", ReferenceController.refDocumentList);
   app.get("/refAuditType", ReferenceController.refAuditTypeList);
