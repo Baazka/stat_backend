@@ -10,4 +10,6 @@ module.exports = (app) => {
   app.get("/refPeriodYear", ReferenceController.refPeriodList);
   app.get("/refErrorConflict", ReferenceController.refErrorConflictList);
   app.get("/refSolution", ReferenceController.refSolutionList);
+  app.get("/refExpertType", ReferenceController.refExpertTypeList);
+  app.get("/refExpertReason", ReferenceController.refExpertReasonList);
 };

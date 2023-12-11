@@ -117,4 +117,26 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refExpertTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT EXPERT_TYPE_ID, EXPERT_TYPE_NAME FROM AUD_STAT.REF_EXPERT_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refExpertReasonList(req, res) {
+    try {
+      const ListQuery = `SELECT EXPERT_REASON_ID, EXPERT_REASON_NAME FROM AUD_STAT.REF_EXPERT_REASON WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
