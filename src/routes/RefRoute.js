@@ -12,4 +12,8 @@ module.exports = (app) => {
   app.get("/refSolution", ReferenceController.refSolutionList);
   app.get("/refExpertType", ReferenceController.refExpertTypeList);
   app.get("/refExpertReason", ReferenceController.refExpertReasonList);
+  app.get("/refBudgetLevel", ReferenceController.refBudgetLevelList);
+  app.get("/refConclusionForm", ReferenceController.refConclusionFormList);
+  app.get("/refConclusionType", ReferenceController.refConclusionTypeList);
+  app.get("/refSubDepartment", ReferenceController.refSubDepartmentList);
 };

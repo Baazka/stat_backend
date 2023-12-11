@@ -139,4 +139,48 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refBudgetLevelList(req, res) {
+    try {
+      const ListQuery = `SELECT BUDGET_LEVEL_ID, BUDGET_LEVEL_NAME FROM AUD_ORG.REF_BUDGET_LEVEL WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refConclusionFormList(req, res) {
+    try {
+      const ListQuery = `SELECT CONCLUSION_FORM_ID, CONCLUSION_FORM_NAME FROM AUD_STAT.REF_CONCLUSION_FORM WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refConclusionTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT CONCLUSION_TYPE_ID, CONCLUSION_TYPE_NAME FROM AUD_STAT.REF_CONCLUSION_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refSubDepartmentList(req, res) {
+    try {
+      const ListQuery = `SELECT SUB_DEPARTMENT_ID, DEPARTMENT_ID, SUB_DEPARTMENT_SHORT_NAME, SUB_DEPARTMENT_NAME FROM AUD_HR.REF_SUB_DEPARTMENT WHERE IS_ACTIVE = 1 ORDER BY SUB_DEPARTMENT_ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
