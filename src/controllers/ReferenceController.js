@@ -183,4 +183,15 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refBenefitTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT BENEFIT_TYPE_ID, BENEFIT_TYPE_NAME FROM AUD_STAT.REF_BENEFIT_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };

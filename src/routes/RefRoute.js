@@ -16,4 +16,5 @@ module.exports = (app) => {
   app.get("/refConclusionForm", ReferenceController.refConclusionFormList);
   app.get("/refConclusionType", ReferenceController.refConclusionTypeList);
   app.get("/refSubDepartment", ReferenceController.refSubDepartmentList);
+  app.get("/refBenefitType", ReferenceController.refBenefitTypeList);
 };

@@ -2292,7 +2292,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       }
 
       getData(req);
-   
 
       const result = await OracleDB.simpleExecute(queryBM9, data);
       return res.send({
@@ -2305,7 +2304,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
   },
   async BM9Remove(req, res) {
     try {
-      
       const queryBM9Remove = `UPDATE AUD_STAT.NEW_BM9_DATA
       SET IS_ACTIVE = 0,
           REMOVE_DESC = :P_REMOVE_DESC,
@@ -2321,7 +2319,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         P_CREATED_BY: parseInt(req.body.CREATED_BY),
       };
 
-      const result = await OracleDB.simpleExecute(queryBM9Remove, data,{
+      const result = await OracleDB.simpleExecute(queryBM9Remove, data, {
         autoCommit: true,
       });
       return res.send({
@@ -2400,6 +2398,115 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       getData(req);
 
       const result = await OracleDB.multipleExecute(queryBM10, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM8AList(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      let params = {};
+
+      let ScheduleData = {
+        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
+        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
+      };
+      const resultCheckSchedule = await OracleDB.simpleExecute(
+        CheckSchedule,
+        ScheduleData
+      );
+      const isCheckSchedule =
+        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
+
+      let ListQuery = `SELECT BM8A.ID, BM8A.DEPARTMENT_ID, RD.DEPARTMENT_NAME, BM8A.SUB_DEPARTMENT_ID, SD.SUB_DEPARTMENT_NAME, BM8A.BUDGET_NAME, 
+      BM8A.BUDGET_LEVEL_ID, BL.BUDGET_LEVEL_NAME, BM8A.CONCLUSION_FORM_ID, CF.CONCLUSION_FORM_NAME, BM8A.IS_REFLECT, 
+      BM8A.CONCLUSION_TYPE_ID, CT.CONCLUSION_TYPE_NAME, BM8A.BENEFIT_TYPE_ID, BT.BENEFIT_TYPE_NAME, BM8A.BENEFIT_FIN_AMOUNT, BM8A.BENEFIT_NONFIN_AMOUNT
+      FROM AUD_STAT.NEW_BM8A_DATA BM8A
+      INNER JOIN AUD_ORG.REF_DEPARTMENT RD ON BM8A.DEPARTMENT_ID = RD.DEPARTMENT_ID
+      LEFT JOIN AUD_HR.REF_SUB_DEPARTMENT SD ON BM8A.SUB_DEPARTMENT_ID = SD.SUB_DEPARTMENT_ID
+      LEFT JOIN AUD_ORG.REF_BUDGET_LEVEL BL ON BM8A.BUDGET_LEVEL_ID = BL.BUDGET_LEVEL_ID
+      LEFT JOIN AUD_STAT.REF_CONCLUSION_FORM CF ON BM8A.CONCLUSION_FORM_ID = CF.CONCLUSION_FORM_ID
+      LEFT JOIN AUD_STAT.REF_CONCLUSION_TYPE CT ON BM8A.CONCLUSION_TYPE_ID = CT.CONCLUSION_TYPE_ID
+      LEFT JOIN AUD_STAT.REF_BENEFIT_TYPE BT ON BM8A.BENEFIT_TYPE_ID = BT.BENEFIT_TYPE_ID
+      WHERE BM8A.IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM8AIU(req, res) {
+    try {
+      const queryBM8A = `BEGIN AUD_STAT.NEW_BM8A_I_U(:P_ID, :P_DEPARTMENT_ID, :P_SUB_DEPARTMENT_ID, :P_BUDGET_NAME, :P_BUDGET_LEVEL_ID, :P_CONCLUSION_FORM_ID, :P_IS_REFLECT, :P_CONCLUSION_TYPE_ID, :P_BENEFIT_TYPE_ID, :P_BENEFIT_FIN_AMOUNT, :P_BENEFIT_NONFIN_AMOUNT, :P_CREATED_BY); END;`;
+
+      let data = {};
+
+      function getData(req) {
+        data = {
+          P_ID: req.body.ID != null ? parseInt(req.body.ID) : null,
+          P_DEPARTMENT_ID: CheckNullInt(req.body.DEPARTMENT_ID),
+          P_SUB_DEPARTMENT_ID: CheckNullInt(req.body.SUB_DEPARTMENT_ID),
+          P_BUDGET_NAME: req.body.BUDGET_NAME,
+          P_BUDGET_LEVEL_ID: CheckNullInt(req.body.BUDGET_LEVEL_ID),
+          P_CONCLUSION_FORM_ID: CheckNullInt(req.body.CONCLUSION_FORM_ID),
+          P_IS_REFLECT: CheckNullInt(req.body.IS_REFLECT),
+          P_CONCLUSION_TYPE_ID: CheckNullInt(req.body.CONCLUSION_TYPE_ID),
+          P_BENEFIT_TYPE_ID: CheckNullInt(req.body.BENEFIT_TYPE_ID),
+          P_BENEFIT_FIN_AMOUNT: CheckNullFloat(req.body.BENEFIT_FIN_AMOUNT),
+          P_BENEFIT_NONFIN_AMOUNT: CheckNullFloat(
+            req.body.BENEFIT_NONFIN_AMOUNT
+          ),
+          P_CREATED_BY: CheckNullInt(req.body.CREATED_BY),
+        };
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.simpleExecute(queryBM8A, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM8ARemove(req, res) {
+    try {
+      const queryBM8ARemove = `UPDATE AUD_STAT.NEW_BM8A_DATA
+      SET IS_ACTIVE = 0,
+          REMOVE_DESC = :P_REMOVE_DESC,
+          UPDATED_BY = :P_CREATED_BY,
+          UPDATED_DATE = SYSDATE
+      WHERE ID = :P_ID `;
+
+      let data = {};
+
+      data = {
+        P_ID: parseInt(req.body.ID),
+        P_REMOVE_DESC: req.body.REMOVE_DESC,
+        P_CREATED_BY: parseInt(req.body.CREATED_BY),
+      };
+
+      const result = await OracleDB.simpleExecute(queryBM8ARemove, data, {
+        autoCommit: true,
+      });
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
