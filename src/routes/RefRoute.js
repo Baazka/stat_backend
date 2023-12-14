@@ -17,4 +17,6 @@ module.exports = (app) => {
   app.get("/refConclusionType", ReferenceController.refConclusionTypeList);
   app.get("/refSubDepartment", ReferenceController.refSubDepartmentList);
   app.get("/refBenefitType", ReferenceController.refBenefitTypeList);
+  app.get("/refMovementType", ReferenceController.refMovementTypeList);
+  app.get("/refMovementSubType", ReferenceController.refMovementSubTypeList);
 };

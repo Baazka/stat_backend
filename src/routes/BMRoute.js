@@ -26,4 +26,6 @@ module.exports = (app) => {
   app.post("/BM8AList", BMController.BM8AList);
   app.post("/BM8AIU", BMController.BM8AIU);
   app.post("/BM8ARemove", BMController.BM8ARemove);
+  app.post("/BM9AList", BMController.BM9AList);
+  app.post("/BM9AIU", BMController.BM9AIU);
 };

@@ -194,4 +194,26 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refMovementTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT MOVEMENT_TYPE_ID, MOVEMENT_TYPE_NAME FROM AUD_HR.REF_MOVEMENT_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refMovementSubTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT MOVEMENT_SUB_TYPE_ID, MOVEMENT_SUB_TYPE_NAME, MOVEMENT_TYPE_ID FROM AUD_HR.REF_MOVEMENT_SUB_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
