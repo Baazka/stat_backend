@@ -2413,17 +2413,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
 
       let params = {};
 
-      let ScheduleData = {
-        STAT_AUDIT_ID: parseInt(req.body.ID, 10),
-        AUDITOR_ID: parseInt(req.body.USER_ID, 10),
-      };
-      const resultCheckSchedule = await OracleDB.simpleExecute(
-        CheckSchedule,
-        ScheduleData
-      );
-      const isCheckSchedule =
-        resultCheckSchedule.rows[0]?.CNT > 0 ? true : false;
-
       let ListQuery = `SELECT BM8A.ID, BM8A.DEPARTMENT_ID, RD.DEPARTMENT_NAME, BM8A.SUB_DEPARTMENT_ID, SD.SUB_DEPARTMENT_NAME, BM8A.BUDGET_NAME, 
       BM8A.BUDGET_LEVEL_ID, BL.BUDGET_LEVEL_NAME, BM8A.CONCLUSION_FORM_ID, CF.CONCLUSION_FORM_NAME, BM8A.IS_REFLECT, 
       BM8A.CONCLUSION_TYPE_ID, CT.CONCLUSION_TYPE_NAME, BM8A.BENEFIT_TYPE_ID, BT.BENEFIT_TYPE_NAME, BM8A.BENEFIT_FIN_AMOUNT, BM8A.BENEFIT_NONFIN_AMOUNT
@@ -2505,6 +2494,327 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       };
 
       const result = await OracleDB.simpleExecute(queryBM8ARemove, data, {
+        autoCommit: true,
+      });
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9AList(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      //params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ListQuery = `SELECT BM9A.ID,
+      BM9A.MOVEMENT_TYPE_ID, BM9A.MOVEMENT_SUB_TYPE_ID, BM9A.MOVEMENT_DATE,
+      HR.*
+      FROM AUD_STAT.NEW_BM9A_DATA BM9A
+      RIGHT JOIN (SELECT 
+      P.DEPARTMENT_ID, 
+      D.DEPARTMENT_NAME,
+      P.SUB_DEPARTMENT_ID, 
+      SD.SUB_DEPARTMENT_NAME,
+      E.EMP_CODE,
+      RP.PERSON_ID,
+      RP.PERSON_LASTNAME, 
+      RP.PERSON_FIRSTNAME, 
+      RP.PERSON_REGISTER_NO,
+      RP.PERSON_BORNDATE,
+      TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') PERSON_AGE,
+      CASE WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') < 25 THEN '25 хүртэл'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') >= 25 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 29 THEN '25-29'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') > 29 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 34 THEN '29-34'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') > 34 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 39 THEN '35-39'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') > 39 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 44 THEN '40-44'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') > 44 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 49 THEN '45-49'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') > 49 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 54 THEN '50-54'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') > 54 AND TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') <= 59 THEN '55-59'
+        WHEN TO_CHAR(SYSDATE,'yyyy') - TO_CHAR(RP.PERSON_BORNDATE, 'yyyy') >= 60 THEN '60-аас дээш'
+        ELSE NULL END PERSON_AGE_CLASS,
+      CASE WHEN RP.PERSON_GENDER = 1 THEN 'Эрэгтэй' WHEN RP.PERSON_GENDER = 2 THEN 'Эмэгтэй' ELSE NULL END PERSON_GENDER,
+      SUR.EMP_SUB_ROLE_NAME,
+      --TAB_DATE,
+      EDU.EDUCATION_TYPE_SHORT_NAME,
+      PP.PROFESSION_NAME
+      FROM AUD_HR.REG_EMPLOYEE E
+      INNER JOIN AUD_HR.REG_PERSON RP ON E.EMP_PERSON_ID = RP.PERSON_ID
+      INNER JOIN AUD_HR.REG_POSITION P ON E.EMP_POSITION_ID = P.POSITION_ID
+      INNER JOIN AUD_HR.REF_POSITION_LEVEL PL ON P.POSITION_LEVEL_ID = PL.POSITION_LEVEL_ID
+      LEFT JOIN AUD_ORG.REF_DEPARTMENT D ON P.DEPARTMENT_ID = D.DEPARTMENT_ID AND D.DEPARTMENT_TYPE = 1 AND D.IS_ACTIVE = 1
+      LEFT JOIN AUD_HR.REF_SUB_DEPARTMENT SD ON P.SUB_DEPARTMENT_ID = SD.SUB_DEPARTMENT_ID
+      LEFT JOIN AUD_HR.REF_EMP_SUB_ROLE SUR ON SUR.EMP_SUB_ROLE_ID = PL.EMP_SUB_ROLE_ID
+      LEFT JOIN (SELECT A.PERSON_ID, ET.EDUCATION_TYPE_SHORT_NAME  
+          FROM (SELECT PE.PERSON_ID, MAX(PE.EDUCATION_TYPE_ID) EDUCATION_TYPE_ID
+              FROM AUD_HR.REG_PERSON_EDUCATION PE
+              WHERE PE.IS_ACTIVE = 1
+              GROUP BY PE.PERSON_ID) A
+          LEFT JOIN AUD_HR.REF_EDUCATION_TYPE ET ON A.EDUCATION_TYPE_ID = ET.EDUCATION_TYPE_ID) EDU ON RP.PERSON_ID = EDU.PERSON_ID
+      LEFT JOIN (SELECT PERSON_ID, MAX(PROFESSION_NAME) PROFESSION_NAME
+          FROM AUD_HR.REG_PERSON_EDUCATION 
+          WHERE IS_ACTIVE = 1 AND IS_PRIMARY = 1
+          GROUP BY PERSON_ID) PP ON RP.PERSON_ID = PP.PERSON_ID
+      WHERE PL.EMP_ROLE_ID IN (1,2,3) AND E.IS_ACTIVE = 1
+      AND P.DEPARTMENT_ID = :P_DEPARTMENT_ID
+      ORDER BY P.ORDER_NO, D.DEPARTMENT_NAME
+      ) HR ON BM9A.PERSON_ID = HR.PERSON_ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+
+  async BM9AIU(req, res) {
+    try {
+      const queryBM9A = `BEGIN AUD_STAT.NEW_BM9A_I_U(:P_ID, :P_PERSON_ID, :P_DEPARTMENT_ID, :P_DEPARTMENT_NAME, :P_SUB_DEPARTMENT_ID, :P_SUB_DEPARTMENT_NAME, :P_EMP_CODE, :P_PERSON_LASTNAME, :P_PERSON_FIRSTNAME, :P_PERSON_REGISTER_NO, :P_PERSON_BORNDATE, :P_PERSON_AGE, :P_PERSON_AGE_CLASS, :P_PERSON_GENDER, :P_EMP_SUB_ROLE_NAME, :P_TAB_YEAR, :P_EDUCATION_TYPE_SHORT_NAME, :P_PROFESSION_NAME, :P_MOVEMENT_TYPE_ID, :P_MOVEMENT_SUB_TYPE_ID, :P_MOVEMENT_DATE, :P_CREATED_BY); END;`;
+
+      let data = [];
+
+      function getData(req) {
+        if (req.body.data?.length > 0) {
+          req.body.data?.forEach((element) => {
+            data.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_PERSON_ID: CheckNullInt(element.PERSON_ID),
+              P_DEPARTMENT_ID: CheckNullInt(element.DEPARTMENT_ID),
+              P_DEPARTMENT_NAME: element.DEPARTMENT_NAME,
+              P_SUB_DEPARTMENT_ID: CheckNullInt(element.SUB_DEPARTMENT_ID),
+              P_SUB_DEPARTMENT_NAME: element.SUB_DEPARTMENT_NAME,
+              P_EMP_CODE: element.EMP_CODE,
+              P_PERSON_LASTNAME: element.PERSON_LASTNAME,
+              P_PERSON_FIRSTNAME: element.PERSON_FIRSTNAME,
+              P_PERSON_REGISTER_NO: element.PERSON_REGISTER_NO,
+              P_PERSON_BORNDATE: DateFormat(element.PERSON_BORNDATE),
+              P_PERSON_AGE: CheckNullInt(element.PERSON_AGE),
+              P_PERSON_AGE_CLASS: CheckNullInt(element.PERSON_AGE_CLASS),
+              P_PERSON_GENDER: element.PERSON_GENDER,
+              P_EMP_SUB_ROLE_NAME: element.EMP_SUB_ROLE_NAME,
+              P_EDUCATION_TYPE_SHORT_NAME: element.EDUCATION_TYPE_SHORT_NAME,
+              P_PROFESSION_NAME: element.PROFESSION_NAME,
+              P_MOVEMENT_TYPE_ID: CheckNullInt(element.MOVEMENT_TYPE_ID),
+              P_MOVEMENT_SUB_TYPE_ID: CheckNullInt(
+                element.MOVEMENT_SUB_TYPE_ID
+              ),
+              P_MOVEMENT_DATE: element.MOVEMENT_DATE,
+
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.multipleExecute(queryBM9A, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9BList(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      let params = {};
+
+      let ListQuery = `SELECT BM9B.ID, BM9B.DEPARTMENT_ID, D.DEPARTMENT_NAME, BM9B.SUB_DEPARTMENT_ID, SD.SUB_DEPARTMENT_NAME, 
+      BM9B.TRAIN_ENVIRONMENT_ID, TE.TRAIN_ENVIRONMENT_NAME, BM9B.TRAIN_CATEGORY_ID, TC.TRAIN_CATEGORY_NAME,  BM9B.TRAIN_DIRECTION_ID, TD.TRAIN_DIRECTION_NAME, 
+      BM9B.TRAIN_NAME, BM9B.TRAIN_START_DATE, BM9B.TRAIN_END_DATE, BM9B.TRAIN_MINUTE, BM9B.TRAIN_PERSON_COUNT
+      FROM AUD_STAT.NEW_BM9B_DATA BM9B
+      INNER JOIN AUD_ORG.REF_DEPARTMENT D ON BM9B.DEPARTMENT_ID = D.DEPARTMENT_ID
+      LEFT JOIN AUD_HR.REF_SUB_DEPARTMENT SD ON BM9B.SUB_DEPARTMENT_ID = SD.SUB_DEPARTMENT_ID
+      LEFT JOIN AUD_STAT.REF_TRAIN_ENVIRONMENT TE ON BM9B.TRAIN_ENVIRONMENT_ID = TE.TRAIN_ENVIRONMENT_ID
+      LEFT JOIN AUD_STAT.REF_TRAIN_CATEGORY TC ON BM9B.TRAIN_CATEGORY_ID = TC.TRAIN_CATEGORY_ID
+      LEFT JOIN AUD_STAT.REF_TRAIN_DIRECTION TD ON BM9B.TRAIN_DIRECTION_ID = TD.TRAIN_DIRECTION_ID
+      WHERE BM9B.IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9BIU(req, res) {
+    try {
+      const queryBM9B = `BEGIN AUD_STAT.NEW_BM9B_I_U(:P_ID, :P_DEPARTMENT_ID, :P_SUB_DEPARTMENT_ID, :P_TRAIN_ENVIRONMENT_ID, :P_TRAIN_CATEGORY_ID, :P_TRAIN_DIRECTION_ID, :P_TRAIN_NAME, :P_TRAIN_START_DATE, :P_TRAIN_END_DATE, :P_TRAIN_MINUTE, :P_TRAIN_PERSON_COUNT, :P_CREATED_BY); END;`;
+
+      let data = {};
+
+      function getData(req) {
+        data = {
+          P_ID: req.body.ID != null ? parseInt(req.body.ID) : null,
+          P_DEPARTMENT_ID: CheckNullInt(req.body.DEPARTMENT_ID),
+          P_SUB_DEPARTMENT_ID: CheckNullInt(req.body.SUB_DEPARTMENT_ID),
+          P_TRAIN_ENVIRONMENT_ID: CheckNullInt(req.body.TRAIN_ENVIRONMENT_ID),
+          P_TRAIN_CATEGORY_ID: CheckNullInt(req.body.TRAIN_CATEGORY_ID),
+          P_TRAIN_DIRECTION_ID: CheckNullInt(req.body.TRAIN_DIRECTION_ID),
+          P_TRAIN_NAME: req.body.TRAIN_NAME,
+          P_TRAIN_START_DATE: DateFormat(req.body.TRAIN_START_DATE),
+          P_TRAIN_END_DATE: DateFormat(req.body.TRAIN_END_DATE),
+          P_TRAIN_MINUTE: CheckNullInt(req.body.TRAIN_MINUTE),
+          P_TRAIN_PERSON_COUNT: CheckNullInt(req.body.TRAIN_PERSON_COUNT),
+          P_CREATED_BY: CheckNullInt(req.body.CREATED_BY),
+        };
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.simpleExecute(queryBM9B, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9BRemove(req, res) {
+    try {
+      const queryBM9BRemove = `UPDATE AUD_STAT.NEW_BM9B_DATA
+      SET IS_ACTIVE = 0,
+          REMOVE_DESC = :P_REMOVE_DESC,
+          UPDATED_BY = :P_CREATED_BY,
+          UPDATED_DATE = SYSDATE
+      WHERE ID = :P_ID `;
+
+      let data = {};
+
+      data = {
+        P_ID: parseInt(req.body.ID),
+        P_REMOVE_DESC: req.body.REMOVE_DESC,
+        P_CREATED_BY: parseInt(req.body.CREATED_BY),
+      };
+
+      const result = await OracleDB.simpleExecute(queryBM9BRemove, data, {
+        autoCommit: true,
+      });
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM11List(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      let params = {};
+
+      let ListQuery = `SELECT BM11.ID, BM11.DEPARTMENT_ID, D.DEPARTMENT_NAME, BM11.SUB_DEPARTMENT_ID, SD.SUB_DEPARTMENT_NAME, 
+      BM11.RECOMMENDATION_YEAR, BM11.EVENT_NAME, BM11.SHORT_DESC, BM11.INFO_TYPE_ID, IT.INFO_TYPE_NAME,
+      BM11.IS_FULFILLMENT, BM11.RECOMMENDATION_TYPE_ID, RT.RECOMMENDATION_TYPE_NAME, BM11.DECIDED_COUNT, BM11.UNIMPLEMENTED_REASON
+      FROM AUD_STAT.NEW_BM11_DATA BM11
+      INNER JOIN AUD_ORG.REF_DEPARTMENT D ON BM11.DEPARTMENT_ID = D.DEPARTMENT_ID
+      LEFT JOIN AUD_HR.REF_SUB_DEPARTMENT SD ON BM11.SUB_DEPARTMENT_ID = SD.SUB_DEPARTMENT_ID
+      LEFT JOIN AUD_STAT.REF_INFO_TYPE IT ON BM11.INFO_TYPE_ID = IT.INFO_TYPE_ID
+      LEFT JOIN AUD_STAT.REF_RECOMMENDATION_TYPE RT ON BM11.RECOMMENDATION_TYPE_ID = RT.RECOMMENDATION_TYPE_ID
+      WHERE BM11.IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM11IU(req, res) {
+    try {
+      const queryBM11 = `BEGIN AUD_STAT.NEW_BM11_I_U(:P_ID, :P_DEPARTMENT_ID, :P_SUB_DEPARTMENT_ID, :P_RECOMMENDATION_YEAR, :P_EVENT_NAME, :P_SHORT_DESC, :P_INFO_TYPE_ID, :P_IS_FULFILLMENT, :P_RECOMMENDATION_TYPE_ID, :P_DECIDED_COUNT, :P_UNIMPLEMENTED_REASON, :P_CREATED_BY); END;`;
+
+      let data = {};
+
+      function getData(req) {
+        data = {
+          P_ID: req.body.ID != null ? parseInt(req.body.ID) : null,
+          P_DEPARTMENT_ID: CheckNullInt(req.body.DEPARTMENT_ID),
+          P_SUB_DEPARTMENT_ID: CheckNullInt(req.body.SUB_DEPARTMENT_ID),
+          P_RECOMMENDATION_YEAR: CheckNullInt(req.body.RECOMMENDATION_YEAR),
+          P_EVENT_NAME: req.body.EVENT_NAME,
+          P_SHORT_DESC: req.body.SHORT_DESC,
+          P_INFO_TYPE_ID: CheckNullInt(req.body.INFO_TYPE_ID),
+          P_IS_FULFILLMENT: CheckNullInt(req.body.IS_FULFILLMENT),
+          P_RECOMMENDATION_TYPE_ID: CheckNullInt(
+            req.body.RECOMMENDATION_TYPE_ID
+          ),
+          P_DECIDED_COUNT: CheckNullInt(req.body.DECIDED_COUNT),
+          P_UNIMPLEMENTED_REASON: req.body.UNIMPLEMENTED_REASON,
+          P_CREATED_BY: CheckNullInt(req.body.CREATED_BY),
+        };
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.simpleExecute(queryBM11, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM11Remove(req, res) {
+    try {
+      const queryBM11Remove = `UPDATE AUD_STAT.NEW_BM11_DATA
+      SET IS_ACTIVE = 0,
+          REMOVE_DESC = :P_REMOVE_DESC,
+          UPDATED_BY = :P_CREATED_BY,
+          UPDATED_DATE = SYSDATE
+      WHERE ID = :P_ID `;
+
+      let data = {};
+
+      data = {
+        P_ID: parseInt(req.body.ID),
+        P_REMOVE_DESC: req.body.REMOVE_DESC,
+        P_CREATED_BY: parseInt(req.body.CREATED_BY),
+      };
+
+      const result = await OracleDB.simpleExecute(queryBM11Remove, data, {
         autoCommit: true,
       });
       return res.send({
