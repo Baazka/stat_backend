@@ -2729,6 +2729,102 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async BM9CList(req, res) {
+    try {
+      let paramID = {};
+      paramID.P_ID = parseInt(req.body.ID, 10);
+
+      const resultFindID = await OracleDB.simpleExecute(FindIDs, paramID);
+
+      let params = {};
+      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+
+      let ListQuery = `SELECT
+      BM9C.ID, BM1.ID BM1_ID, NULL, L.AUDIT_TYPE_NAME, BM9C.DEPARTMENT_ID, D.DEPARTMENT_NAME, BM9C.SUB_DEPARTMENT_ID, SD.SUB_DEPARTMENT_NAME, 
+      BM9C.ENT_ID, NVL(L.ENT_NAME, AE.ENT_NAME) ENT_NAME, L.AUDIT_CODE, 
+      BM9C.PAGE_ABSTRACT_COUNT, BM9C.PAGE_MORE_COUNT, BM9C.PAGE_VISUAL_COUNT, 
+      BM9C.PRINT_ABSTRACT_COUNT, BM9C.PRINT_MORE_COUNT, BM9C.PRINT_VISUAL_COUNT,
+      BM9C.REPORTED_ABSTRACT_ID, BM9C.REPORTED_MORE_ID, BM9C.REPORTED_VISUAL_ID, BM9C.IS_ACTIVE
+      FROM AUD_STAT.NEW_BM1_DATA BM1
+      INNER JOIN AUD_STAT.NEW_BM1_LOG L ON L.BM1_ID = BM1.ID
+      INNER JOIN FAS_ADMIN.FAS_AUDIT FA ON BM1.AUDIT_ID = FA.ID
+      LEFT JOIN AUD_STAT.NEW_BM9C_DATA BM9C ON BM9C.BM1_ID = BM1.ID
+      LEFT JOIN AUD_ORG.AUDIT_ENTITY AE ON BM9C.ENT_ID = AE.ENT_ID AND AE.IS_ACTIVE = 1
+      LEFT JOIN AUD_ORG.REF_DEPARTMENT D ON BM9C.DEPARTMENT_ID = D.DEPARTMENT_ID
+      LEFT JOIN AUD_HR.REF_SUB_DEPARTMENT SD ON BM9C.SUB_DEPARTMENT_ID = SD.SUB_DEPARTMENT_ID
+      WHERE BM1.IS_ACTIVE = 1 AND BM1.IS_PRESS_REPORT = 1 AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID
+      UNION
+      SELECT BM9C.ID, BM1_ID, AUDIT_TYPE_ID, NULL, DEPARTMENT_ID, NULL, SUB_DEPARTMENT_ID, NULL, 
+      ENT_ID, NULL, BM9C.AUDIT_CODE, 
+      PAGE_ABSTRACT_COUNT, PAGE_MORE_COUNT, PAGE_VISUAL_COUNT, 
+      PRINT_ABSTRACT_COUNT, PRINT_MORE_COUNT, PRINT_VISUAL_COUNT, 
+      REPORTED_ABSTRACT_ID, REPORTED_MORE_ID, REPORTED_VISUAL_ID, IS_ACTIVE
+      FROM AUD_STAT.NEW_BM9C_DATA BM9C
+      WHERE BM1_ID IS NULL AND BM9C.DEPARTMENT_ID = :P_DEPARTMENT_ID`;
+      //ListQuery += `\n ORDER BY BM1.ID`;
+
+      const result = await OracleDB.simpleExecute(ListQuery, params);
+      const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
+      const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
+
+      return res.send({
+        data: result.rows,
+        role: resultRole.rows,
+        status:
+          resultStatus.rows[0] !== undefined ? resultStatus.rows[0] : null,
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async BM9CIU(req, res) {
+    try {
+      const queryBM9C = `BEGIN AUD_STAT.NEW_BM9C_I_U(:P_ID, :P_DEPARTMENT_ID, :P_SUB_DEPARTMENT_ID, :P_BM1_ID, :P_ENT_ID, :P_AUDIT_CODE, :P_PAGE_ABSTRACT_COUNT, :P_PAGE_MORE_COUNT, :P_PAGE_VISUAL_COUNT, :P_PRINT_ABSTRACT_COUNT, :P_PRINT_MORE_COUNT, :P_PRINT_VISUAL_COUNT, :P_REPORTED_ABSTRACT_ID, :P_REPORTED_MORE_ID, :P_REPORTED_VISUAL_ID, :P_IS_ACTIVE, :P_CREATED_BY); END;`;
+
+      let data = [];
+
+      function getData(req) {
+        if (req.body.data?.length > 0) {
+          req.body.data?.forEach((element) => {
+            data.push({
+              P_ID: element.ID != null ? parseInt(element.ID) : null,
+              P_DEPARTMENT_ID: CheckNullInt(element.DEPARTMENT_ID),
+              P_SUB_DEPARTMENT_ID: CheckNullInt(element.SUB_DEPARTMENT_ID),
+              P_BM1_ID: CheckNullInt(element.BM1_ID),
+              P_ENT_ID: CheckNullInt(element.ENT_ID),
+              P_AUDIT_CODE: element.AUDIT_CODE,
+              P_PAGE_ABSTRACT_COUNT: CheckNullInt(element.PAGE_ABSTRACT_COUNT),
+              P_PAGE_MORE_COUNT: CheckNullInt(element.PAGE_MORE_COUNT),
+              P_PAGE_VISUAL_COUNT: CheckNullInt(element.PAGE_VISUAL_COUNT),
+              P_PRINT_ABSTRACT_COUNT: CheckNullInt(
+                element.PRINT_ABSTRACT_COUNT
+              ),
+              P_PRINT_MORE_COUNT: CheckNullInt(element.PRINT_MORE_COUNT),
+              P_PRINT_VISUAL_COUNT: CheckNullInt(element.PRINT_VISUAL_COUNT),
+              P_REPORTED_ABSTRACT_ID: CheckNullInt(
+                element.REPORTED_ABSTRACT_ID
+              ),
+              P_REPORTED_MORE_ID: CheckNullInt(element.REPORTED_MORE_ID),
+              P_REPORTED_VISUAL_ID: CheckNullInt(element.REPORTED_VISUAL_ID),
+              P_IS_ACTIVE: parseInt(element.IS_ACTIVE),
+              P_CREATED_BY: parseInt(req.body.CREATED_BY),
+            });
+          });
+        }
+        return { data };
+      }
+
+      getData(req);
+
+      const result = await OracleDB.multipleExecute(queryBM9C, data);
+      return res.send({
+        status: 200,
+        message: "Хадгаллаа.",
+      });
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
   async BM11List(req, res) {
     try {
       let paramID = {};
