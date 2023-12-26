@@ -271,4 +271,26 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refReportTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT REPORT_TYPE_ID, REPORT_TYPE_NAME FROM AUD_STAT.REF_REPORT_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refReportETypeList(req, res) {
+    try {
+      const ListQuery = `SELECT REPORT_ETYPE_ID, REPORT_ETYPE_NAME FROM AUD_STAT.REF_REPORT_ETYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };

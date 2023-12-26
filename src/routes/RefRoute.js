@@ -27,4 +27,6 @@ module.exports = (app) => {
     "/refRecommendationType",
     ReferenceController.refRecommendationTypeList
   );
+  app.get("/refReportType", ReferenceController.refReportTypeList);
+  app.get("/refReportEType", ReferenceController.refReportETypeList);
 };
