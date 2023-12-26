@@ -2466,7 +2466,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       }
 
       getData(req);
-
+      console.log(data);
       const result = await OracleDB.simpleExecute(queryBM8A, data);
       return res.send({
         status: 200,
