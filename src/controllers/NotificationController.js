@@ -5,7 +5,7 @@ const { CheckNullInt, DateFormat } = require("../utils/Helper");
 module.exports = {
   async NotificationList(req, res) {
     try {
-      let ListQuery = `SELECT SN.ID, SN.AUDIT_ID, TD.DEPARTMENT_NAME, TD.PERIOD_LABEL, SN.DOCUMENT_ID, SN.CREATED_BY, SN.CREATED_DATE, SN.IS_SHOW, DECODE(SN.REQUEST_TYPE, 1, 'батлах', 2, 'цуцлах') REQUEST_TYPE, SN.DESCRIPTION, SN.PRO_STATUS,
+      let ListQuery = `SELECT SN.ID, SN.AUDIT_ID, TD.DEPARTMENT_NAME, TD.PERIOD_LABEL, SN.DOCUMENT_ID, SN.CREATED_BY, SN.CREATED_DATE, SN.IS_SHOW, DECODE(SN.REQUEST_TYPE, 1, 'батлах', 2, 'цуцлах') REQUEST_TYPE_NAME,SN.REQUEST_TYPE, SN.DESCRIPTION, SN.PRO_STATUS,
       RD.DOCUMENT_SHORT_NAME, RD.DOCUMENT_NAME, SU.USER_NAME, TD.AUDITOR_ID, TD.ROLE_ID,
       SN.MODULE_ID
       FROM AUD_REG.SYSTEM_NOTIFICATION SN
@@ -32,7 +32,7 @@ module.exports = {
         data = { USER_ID: CheckNullInt(req.body.USER_ID) };
       }
       //ListQuery += `\nORDER BY C.CREATED_DATE DESC`;
-      console.log(data, "test");
+      
       const result = await OracleDB.simpleExecute(ListQuery, data);
       return res.send(result.rows);
       // if(result.rows !== undefined && result.rows.length>0)
@@ -51,12 +51,12 @@ module.exports = {
         P_STAT_AUDIT_ID: parseInt(req.body.AUDIT_ID, 10),
         P_DOCUMENT_ID: CheckNullInt(req.body.DOCUMENT_ID),
         P_REQUEST_TYPE: CheckNullInt(req.body.REQUEST_TYPE),
-        P_PRO_STATUS: CheckNullInt(req.body.ROLE_ID),
+        P_PRO_STATUS: CheckNullInt(req.body.LEVEL_ID),
         P_MODULE_ID: CheckNullInt(req.body.MODULE_ID),
         P_DESCRIPTION: req.body.DESCRIPTION,
         P_CREATED_BY: req.body.CREATED_BY,
       };
-      console.log(data, "test");
+   
 
       const result = await OracleDB.simpleExecute(queryInsert, data, {
         autoCommit: true,
@@ -76,11 +76,11 @@ module.exports = {
       const queryUpdate = `UPDATE AUD_REG.SYSTEM_NOTIFICATION
       SET IS_SHOW = 1
       WHERE ID = :P_ID`;
-
+      
       let data = {
         P_ID: parseInt(req.body.ID),
       };
-
+      console.log(req.body,'NotificationUpdate');
       const result = await OracleDB.simpleExecute(queryUpdate, data, {
         autoCommit: true,
       });

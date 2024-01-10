@@ -76,6 +76,64 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async regStatisticListOne(req, res) {
+    try {
+      let params = {};
+      params.ID = parseInt(req.body.ID, 10);
+     console.log(req.body,'regStatisticListOne');
+
+      let ListQuery = `   SELECT 
+      SA.ID,
+      RP.PERIOD_LABEL,
+      SA.DEPARTMENT_ID ,
+      RP.PERIOD_YEAR,
+      SA.CONFIRM_DATE,
+      RD.DEPARTMENT_NAME,
+      SA.DOCUMENT_ID,
+      D.DOCUMENT_NAME,
+      D.DOCUMENT_SHORT_NAME,
+      SU.USER_NAME,
+      SA.CREATED_DATE,
+      (SELECT LISTAGG(SU.USER_NAME,', ') WITHIN GROUP(ORDER BY FAT.ID) FROM AUD_STAT.STAT_AUDIT_TEAM FAT INNER JOIN AUD_REG.SYSTEM_USER SU ON FAT.AUDITOR_ID = SU.USER_ID WHERE FAT.STAT_AUDIT_ID = SA.ID AND FAT.ROLE_ID = 1 AND FAT.IS_ACTIVE = 1 GROUP BY FAT.STAT_AUDIT_ID) AUDITOR_MEMBER,
+      (SELECT LISTAGG(SU.USER_NAME,', ') WITHIN GROUP(ORDER BY FAT.ID) FROM AUD_STAT.STAT_AUDIT_TEAM FAT INNER JOIN AUD_REG.SYSTEM_USER SU ON FAT.AUDITOR_ID = SU.USER_ID WHERE FAT.STAT_AUDIT_ID = SA.ID AND FAT.ROLE_ID = 2 AND FAT.IS_ACTIVE = 1 GROUP BY FAT.STAT_AUDIT_ID) AUDIT_APPROVE_MEMBER1,
+      (SELECT LISTAGG(SU.USER_NAME,', ') WITHIN GROUP(ORDER BY FAT.ID) FROM AUD_STAT.STAT_AUDIT_TEAM FAT INNER JOIN AUD_REG.SYSTEM_USER SU ON FAT.AUDITOR_ID = SU.USER_ID WHERE FAT.STAT_AUDIT_ID = SA.ID AND FAT.ROLE_ID = 3 AND FAT.IS_ACTIVE = 1 GROUP BY FAT.STAT_AUDIT_ID) AUDIT_APPROVE_MEMBER2,
+      (SELECT LISTAGG(SU.USER_NAME,', ') WITHIN GROUP(ORDER BY FAT.ID) FROM AUD_STAT.STAT_AUDIT_TEAM FAT INNER JOIN AUD_REG.SYSTEM_USER SU ON FAT.AUDITOR_ID = SU.USER_ID WHERE FAT.STAT_AUDIT_ID = SA.ID AND FAT.ROLE_ID = 4 AND FAT.IS_ACTIVE = 1 GROUP BY FAT.STAT_AUDIT_ID) AUDIT_APPROVE_MEMBER3,
+      SA.IS_LOCK
+      FROM AUD_STAT.STAT_AUDIT SA
+      INNER JOIN AUD_STAT.REF_PERIOD RP ON SA.PERIOD_ID = RP.ID
+      INNER JOIN AUD_ORG.REF_DEPARTMENT RD ON SA.DEPARTMENT_ID = RD.DEPARTMENT_ID
+      INNER JOIN AUD_STAT.REF_DOCUMENT D ON SA.DOCUMENT_ID = D.ID
+      LEFT JOIN AUD_REG.SYSTEM_USER SU ON SA.CREATED_BY = SU.USER_ID
+     
+  WHERE SA.IS_ACTIVE = 1 AND SA.ID = :ID`;
+
+      const binds = {};
+      binds.ID = params.ID
+      // if (
+      //   params.usertype === "ADMIN" ||
+      //   params.usertype === "ALL_VIEWER" ||
+      //   params.usertype === "HEAD_AUDITOR" ||
+      //   params.usertype === "STAT_ADMIN"
+      // ) {
+      //   ListQuery += `\n AND 1 = 1 `;
+      // } else {
+      //   if (params.userid) {
+      //     binds.USER_ID = params.userid;
+      //     ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM AUD_STAT.STAT_AUDIT_TEAM T WHERE T.IS_ACTIVE = 1 AND T.AUDITOR_ID = :USER_ID AND T.STAT_AUDIT_ID = SA.ID)`;
+      //   } //else binds = {};
+      // }
+    
+      ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
+
+      //console.log(ListQuery, binds, "bindsbindsbindsbindsbinds");
+
+      const result = await OracleDB.simpleExecute(ListQuery, binds);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
   async regStatisticIU(req, res) {
     try {
       const queryAuditSEQ = `SELECT AUD_STAT.SEQ_STAT_AUDIT_ID.NEXTVAL FROM DUAL`;
