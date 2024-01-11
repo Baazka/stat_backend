@@ -68,7 +68,7 @@ module.exports = {
       ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
 
       //console.log(ListQuery, binds, "bindsbindsbindsbindsbinds");
-      console.log(binds,'binds');
+    
       const result = await OracleDB.simpleExecute(ListQuery, binds);
 
       return res.send(result.rows);
