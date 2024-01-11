@@ -57,13 +57,13 @@ module.exports = {
       //     ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM AUD_STAT.STAT_AUDIT_TEAM T WHERE T.IS_ACTIVE = 1 AND T.AUDITOR_ID = :USER_ID AND T.STAT_AUDIT_ID = SA.ID)`;
       //   } //else binds = {};
       // }
-      if (params.periodid) {
+      if (params.periodid !== 999 && params.periodid !== null) {
         ListQuery += `\n AND SA.PERIOD_ID = :PERIOD_ID`;
-        binds.PERIOD_ID = params.periodid;
+        binds.PERIOD_ID = CheckNullInt(params.periodid);
       }
       if (params.depid !== 999) {
         ListQuery += `\n AND SA.DEPARTMENT_ID = :DEPARTMENT_ID`;
-        binds.DEPARTMENT_ID = params.depid;
+        binds.DEPARTMENT_ID = CheckNullInt(params.depid);
       }
       ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
 
