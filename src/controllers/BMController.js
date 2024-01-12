@@ -2564,7 +2564,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
           WHERE IS_ACTIVE = 1 AND IS_PRIMARY = 1
           GROUP BY PERSON_ID) PP ON RP.PERSON_ID = PP.PERSON_ID
       WHERE PL.EMP_ROLE_ID IN (1,2,3) AND E.IS_ACTIVE = 1
-      AND P.DEPARTMENT_ID = :P_DEPARTMENT_ID
+      --AND P.DEPARTMENT_ID = :P_DEPARTMENT_ID
       ORDER BY P.ORDER_NO, D.DEPARTMENT_NAME
       ) HR ON BM9A.PERSON_ID = HR.PERSON_ID`;
 
@@ -2587,11 +2587,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
     try {
       const queryBM9A = `BEGIN AUD_STAT.NEW_BM9A_I_U(:P_ID, :P_PERSON_ID, :P_DEPARTMENT_ID, :P_DEPARTMENT_NAME, :P_SUB_DEPARTMENT_ID, :P_SUB_DEPARTMENT_NAME, :P_EMP_CODE, :P_PERSON_LASTNAME, :P_PERSON_FIRSTNAME, :P_PERSON_REGISTER_NO, :P_PERSON_BORNDATE, :P_PERSON_AGE, :P_PERSON_AGE_CLASS, :P_PERSON_GENDER, :P_EMP_SUB_ROLE_NAME, :P_TAB_YEAR, :P_EDUCATION_TYPE_SHORT_NAME, :P_PROFESSION_NAME, :P_MOVEMENT_TYPE_ID, :P_MOVEMENT_SUB_TYPE_ID, :P_MOVEMENT_DATE, :P_CREATED_BY); END;`;
 
-  
-     
-     
-     
-  
       let data = [];
 
       function getData(req) {
@@ -2630,7 +2625,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       }
 
       getData(req);
-   
 
       const result = await OracleDB.multipleExecute(queryBM9A, data);
       return res.send({
@@ -2834,7 +2828,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
       }
 
       getData(req);
-     
 
       const result = await OracleDB.multipleExecute(queryBM9C, data);
       return res.send({
