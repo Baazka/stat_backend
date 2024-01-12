@@ -2513,7 +2513,7 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
 
       let params = {};
       //params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
-      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+      //params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ListQuery = `SELECT BM9A.ID,
       BM9A.MOVEMENT_TYPE_ID, BM9A.MOVEMENT_SUB_TYPE_ID, BM9A.MOVEMENT_DATE,
