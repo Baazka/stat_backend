@@ -27,6 +27,8 @@ module.exports = {
       SA.DOCUMENT_ID,
       D.DOCUMENT_NAME,
       D.DOCUMENT_SHORT_NAME,
+      SA.AUDIT_TYPE_ID,
+      RAT.AUDIT_TYPE_NAME,
       SU.USER_NAME,
       SA.CREATED_DATE,
       (SELECT LISTAGG(SU.USER_NAME,', ') WITHIN GROUP(ORDER BY FAT.ID) FROM AUD_STAT.STAT_AUDIT_TEAM FAT INNER JOIN AUD_REG.SYSTEM_USER SU ON FAT.AUDITOR_ID = SU.USER_ID WHERE FAT.STAT_AUDIT_ID = SA.ID AND FAT.ROLE_ID = 1 AND FAT.IS_ACTIVE = 1 GROUP BY FAT.STAT_AUDIT_ID) AUDITOR_MEMBER,
@@ -38,6 +40,7 @@ module.exports = {
       INNER JOIN AUD_STAT.REF_PERIOD RP ON SA.PERIOD_ID = RP.ID
       INNER JOIN AUD_ORG.REF_DEPARTMENT RD ON SA.DEPARTMENT_ID = RD.DEPARTMENT_ID
       INNER JOIN AUD_STAT.REF_DOCUMENT D ON SA.DOCUMENT_ID = D.ID
+      INNER JOIN AUD_STAT.REF_AUDIT_TYPE RAT ON SA.AUDIT_TYPE_ID = RAT.AUDIT_TYPE_ID
       LEFT JOIN AUD_REG.SYSTEM_USER SU ON SA.CREATED_BY = SU.USER_ID
      
   WHERE SA.IS_ACTIVE = 1`;
@@ -57,18 +60,22 @@ module.exports = {
       //     ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM AUD_STAT.STAT_AUDIT_TEAM T WHERE T.IS_ACTIVE = 1 AND T.AUDITOR_ID = :USER_ID AND T.STAT_AUDIT_ID = SA.ID)`;
       //   } //else binds = {};
       // }
-      if (params.periodid !== 999 && params.periodid !== null && !isNaN(params.periodid) ) {
+      if (
+        params.periodid !== 999 &&
+        params.periodid !== null &&
+        !isNaN(params.periodid)
+      ) {
         ListQuery += `\n AND SA.PERIOD_ID = :PERIOD_ID`;
         binds.PERIOD_ID = CheckNullInt(params.periodid);
       }
-      if (params.depid !== 999  && !isNaN(params.depid)) {
+      if (params.depid !== 999 && !isNaN(params.depid)) {
         ListQuery += `\n AND SA.DEPARTMENT_ID = :DEPARTMENT_ID`;
         binds.DEPARTMENT_ID = CheckNullInt(params.depid);
       }
       ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
 
       //console.log(ListQuery, binds, "bindsbindsbindsbindsbinds");
-    
+
       const result = await OracleDB.simpleExecute(ListQuery, binds);
 
       return res.send(result.rows);
@@ -80,9 +87,9 @@ module.exports = {
     try {
       let params = {};
       params.ID = parseInt(req.body.ID, 10);
-     console.log(req.body,'regStatisticListOne');
+      console.log(req.body, "regStatisticListOne");
 
-      let ListQuery = `   SELECT 
+      let ListQuery = `SELECT 
       SA.ID,
       RP.PERIOD_LABEL,
       SA.DEPARTMENT_ID ,
@@ -92,6 +99,8 @@ module.exports = {
       SA.DOCUMENT_ID,
       D.DOCUMENT_NAME,
       D.DOCUMENT_SHORT_NAME,
+      SA.AUDIT_TYPE_ID,
+      RAT.AUDIT_TYPE_NAME,
       SU.USER_NAME,
       SA.CREATED_DATE,
       (SELECT LISTAGG(SU.USER_NAME,', ') WITHIN GROUP(ORDER BY FAT.ID) FROM AUD_STAT.STAT_AUDIT_TEAM FAT INNER JOIN AUD_REG.SYSTEM_USER SU ON FAT.AUDITOR_ID = SU.USER_ID WHERE FAT.STAT_AUDIT_ID = SA.ID AND FAT.ROLE_ID = 1 AND FAT.IS_ACTIVE = 1 GROUP BY FAT.STAT_AUDIT_ID) AUDITOR_MEMBER,
@@ -103,12 +112,13 @@ module.exports = {
       INNER JOIN AUD_STAT.REF_PERIOD RP ON SA.PERIOD_ID = RP.ID
       INNER JOIN AUD_ORG.REF_DEPARTMENT RD ON SA.DEPARTMENT_ID = RD.DEPARTMENT_ID
       INNER JOIN AUD_STAT.REF_DOCUMENT D ON SA.DOCUMENT_ID = D.ID
+      INNER JOIN AUD_STAT.REF_AUDIT_TYPE RAT ON SA.AUDIT_TYPE_ID = RAT.AUDIT_TYPE_ID
       LEFT JOIN AUD_REG.SYSTEM_USER SU ON SA.CREATED_BY = SU.USER_ID
      
   WHERE SA.IS_ACTIVE = 1 AND SA.ID = :ID`;
 
       const binds = {};
-      binds.ID = params.ID
+      binds.ID = params.ID;
       // if (
       //   params.usertype === "ADMIN" ||
       //   params.usertype === "ALL_VIEWER" ||
@@ -122,7 +132,7 @@ module.exports = {
       //     ListQuery += `\n AND EXISTS (SELECT AUDITOR_ID FROM AUD_STAT.STAT_AUDIT_TEAM T WHERE T.IS_ACTIVE = 1 AND T.AUDITOR_ID = :USER_ID AND T.STAT_AUDIT_ID = SA.ID)`;
       //   } //else binds = {};
       // }
-    
+
       ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
 
       //console.log(ListQuery, binds, "bindsbindsbindsbindsbinds");
@@ -137,7 +147,7 @@ module.exports = {
   async regStatisticIU(req, res) {
     try {
       const queryAuditSEQ = `SELECT AUD_STAT.SEQ_STAT_AUDIT_ID.NEXTVAL FROM DUAL`;
-      const queryAudit = `BEGIN AUD_STAT.STAT_AUDIT_I_U(:P_STAT_AUDIT_ID, :P_PERIOD_ID, :P_DEPARTMENT_ID, :P_DOCUMENT_ID, :P_CONFIRM_DATE, :P_CREATED_BY); END;`;
+      const queryAudit = `BEGIN AUD_STAT.STAT_AUDIT_I_U(:P_STAT_AUDIT_ID, :P_PERIOD_ID, :P_DEPARTMENT_ID, :P_DOCUMENT_ID, :P_AUDIT_TYPE_ID, :P_CONFIRM_DATE, :P_CREATED_BY); END;`;
       const queryTeam = `BEGIN AUD_STAT.STAT_AUDIT_TEAM_I_U (:P_ID, :P_STAT_AUDIT_ID, :P_AUDITOR_ID, :P_ROLE_ID, :P_IS_ACTIVE, :P_CREATED_BY); END;`;
 
       let audit = {};
@@ -149,6 +159,7 @@ module.exports = {
           P_PERIOD_ID: CheckNullInt(req.body.Audit.PERIOD_ID),
           P_DEPARTMENT_ID: CheckNullInt(req.body.Audit.DEPARTMENT_ID),
           P_DOCUMENT_ID: CheckNullInt(req.body.Audit.DOCUMENT_ID),
+          P_AUDIT_TYPE_ID: CheckNullInt(req.body.Audit.AUDIT_TYPE_ID),
           P_CONFIRM_DATE: DateFormat(req.body.Audit.CONFIRM_DATE),
           P_CREATED_BY: parseInt(req.body.CREATED_BY),
         };
@@ -199,13 +210,13 @@ module.exports = {
   async getStatisticPlan(req, res) {
     try {
       let params = {};
-      console.log(req.body);
+
       if (req.body.STAT_ID === undefined || req.body.STAT_ID === null)
         return res.send("STAT_ID ilgeenuu");
 
       params.STAT_ID = parseInt(req.body.STAT_ID, 10);
 
-      let ListQuery = `SELECT ID, PERIOD_ID, DEPARTMENT_ID, DOCUMENT_ID, CONFIRM_DATE, STATUS, IS_ACTIVE, CREATED_BY, CREATED_DATE 
+      let ListQuery = `SELECT ID, PERIOD_ID, DEPARTMENT_ID, DOCUMENT_ID, AUDIT_TYPE_ID, CONFIRM_DATE, STATUS, IS_ACTIVE, CREATED_BY, CREATED_DATE 
       FROM AUD_STAT.STAT_AUDIT
       WHERE ID = :STAT_ID`;
 
@@ -240,9 +251,10 @@ module.exports = {
       params.P_PERIOD_ID = parseInt(req.body.PERIOD_ID, 10);
       params.P_DEPARTMENT_ID = parseInt(req.body.DEPARTMENT_ID, 10);
       params.P_DOCUMENT_ID = parseInt(req.body.DOCUMENT_ID, 10);
+      params.P_AUDIT_TYPE_ID = parseInt(req.body.AUDIT_TYPE_ID, 10);
 
       let ListQuery = `SELECT COUNT(*) CNT FROM AUD_STAT.STAT_AUDIT 
-      WHERE IS_ACTIVE = 1 AND PERIOD_ID = :P_PERIOD_ID AND DEPARTMENT_ID = :P_DEPARTMENT_ID AND  DOCUMENT_ID = :P_DOCUMENT_ID`;
+      WHERE IS_ACTIVE = 1 AND PERIOD_ID = :P_PERIOD_ID AND DEPARTMENT_ID = :P_DEPARTMENT_ID AND  DOCUMENT_ID = :P_DOCUMENT_ID AND AUDIT_TYPE_ID = :P_AUDIT_TYPE_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       return res.send(result.rows[0]?.CNT > 0 ? true : false);

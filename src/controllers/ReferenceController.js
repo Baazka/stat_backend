@@ -62,7 +62,7 @@ module.exports = {
       const doctype = req.query.DocType;
 
       let ListQuery =
-        `SELECT ID, DOCUMENT_NAME, DOCUMENT_SHORT_NAME FROM AUD_STAT.REF_DOCUMENT WHERE IS_ACTIVE = 1 AND DOCUMENT_TYPE = ` +
+        `SELECT ID, DOCUMENT_NAME, DOCUMENT_SHORT_NAME, IS_TAB FROM AUD_STAT.REF_DOCUMENT WHERE IS_ACTIVE = 1 AND DOCUMENT_TYPE = ` +
         doctype;
 
       ListQuery += `\nORDER BY DOCUMENT_ORDER`;
