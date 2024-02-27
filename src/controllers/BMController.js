@@ -189,7 +189,8 @@ module.exports = {
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -365,7 +366,8 @@ module.exports = {
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -598,7 +600,8 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -879,7 +882,8 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -1181,7 +1185,8 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -1481,7 +1486,8 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -1782,7 +1788,8 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);
@@ -2091,7 +2098,8 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
         if (
           req.body.USER_TYPE_NAME === "ADMIN" ||
           req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-          req.body.USER_TYPE_NAME === "STAT_ADMIN"
+          req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+          req.body.USER_TYPE_NAME === "ANUZG"
         ) {
         } else {
           params.P_USER_ID = parseInt(req.body.USER_ID, 10);

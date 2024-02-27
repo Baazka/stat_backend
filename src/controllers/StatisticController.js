@@ -3,21 +3,18 @@ const OracleDB = require("../services/database");
 const { CheckNullInt, DateFormat } = require("../utils/Helper");
 
 module.exports = {
-  async 
-  regStatisticList(req, res) {
+  async regStatisticList(req, res) {
     try {
       let params = {};
       params.periodid = parseInt(req.body.PERIOD_ID, 10);
       params.depid =
         req.body.USER_TYPE_NAME === "ADMIN" ||
         req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
-        req.body.USER_TYPE_NAME === "STAT_ADMIN"
+        req.body.USER_TYPE_NAME === "STAT_ADMIN" ||
+        req.body.USER_TYPE_NAME === "ANUZG"
           ? parseInt(req.body.FILTER_DEPARTMENT_ID, 10)
           : parseInt(req.body.USER_DEPARTMENT_ID, 10);
-      params.doctype =
-        req.body.USER_TYPE_NAME === "ANUZG"
-          ? 1
-          : null;
+      params.doctype = req.body.USER_TYPE_NAME === "ANUZG" ? 1 : null;
       params.userid = parseInt(req.body.USER_ID, 10);
       params.userid = parseInt(req.body.USER_ID, 10);
       params.usertype = req.body.USER_TYPE_NAME;
@@ -44,14 +41,13 @@ module.exports = {
       FROM AUD_STAT.STAT_AUDIT SA
       INNER JOIN AUD_STAT.REF_PERIOD RP ON SA.PERIOD_ID = RP.ID
       INNER JOIN AUD_ORG.REF_DEPARTMENT RD ON SA.DEPARTMENT_ID = RD.DEPARTMENT_ID
-      INNER JOIN AUD_STAT.REF_DOCUMENT D ON SA.DOCUMENT_ID = D.ID AND D.IS_TAB = NVL(IS_TAB, D.IS_TAB)
+      INNER JOIN AUD_STAT.REF_DOCUMENT D ON SA.DOCUMENT_ID = D.ID 
       INNER JOIN AUD_STAT.REF_AUDIT_TYPE RAT ON SA.AUDIT_TYPE_ID = RAT.AUDIT_TYPE_ID
       LEFT JOIN AUD_REG.SYSTEM_USER SU ON SA.CREATED_BY = SU.USER_ID
      
   WHERE SA.IS_ACTIVE = 1`;
 
       const binds = {};
-      binds.IS_TAB = params.doctype;
       // if (
       //   params.usertype === "ADMIN" ||
       //   params.usertype === "ALL_VIEWER" ||
@@ -77,6 +73,11 @@ module.exports = {
         ListQuery += `\n AND SA.DEPARTMENT_ID = :DEPARTMENT_ID`;
         binds.DEPARTMENT_ID = CheckNullInt(params.depid);
       }
+      if (params.usertype === "ANUZG") {
+        ListQuery += `\n AND D.IS_TAB = NVL(:IS_TAB, D.IS_TAB)`;
+        binds.IS_TAB = params.doctype;
+      }
+
       ListQuery += `\n ORDER BY RD.DEPARTMENT_ID, D.DOCUMENT_ORDER`;
 
       //console.log(ListQuery, binds, "bindsbindsbindsbindsbinds");
