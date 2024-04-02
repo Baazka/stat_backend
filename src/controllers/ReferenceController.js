@@ -84,7 +84,7 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
-  async refPeriodList(req, res) {
+  async refPeriodListYear(req, res) {
     try {
       const ListQuery = `SELECT PERIOD_ID, YEAR_LABEL, YEAR_NAME FROM FAS_ADMIN.REF_PERIOD WHERE IS_ACTIVE = 1`;
 

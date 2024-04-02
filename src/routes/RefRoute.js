@@ -7,7 +7,7 @@ module.exports = (app) => {
   app.post("/refEmployee", ReferenceController.refEmployeeList);
   app.get("/refDocument?:DocType", ReferenceController.refDocumentList);
   app.get("/refAuditType", ReferenceController.refAuditTypeList);
-  app.get("/refPeriodYear", ReferenceController.refPeriodList);
+  app.get("/refPeriodYear", ReferenceController.refPeriodListYear);
   app.get("/refErrorConflict", ReferenceController.refErrorConflictList);
   app.get("/refSolution", ReferenceController.refSolutionList);
   app.get("/refExpertType", ReferenceController.refExpertTypeList);
