@@ -4,7 +4,7 @@ const OracleDB = require("../services/database");
 module.exports = {
   async refPeriodList(req, res) {
     try {
-      const ListQuery = `SELECT ID, PERIOD_LABEL, PERIOD_YEAR FROM AUD_STAT.REF_PERIOD WHERE IS_ACTIVE = 1 ORDER BY ID DESC`;
+      const ListQuery = `SELECT ID PERIOD_ID, PERIOD_LABEL YEAR_LABEL, PERIOD_YEAR YEAR_NAME FROM AUD_STAT.REF_PERIOD WHERE IS_ACTIVE = 1 ORDER BY ID DESC`;
 
       const result = await OracleDB.simpleExecute(ListQuery);
 

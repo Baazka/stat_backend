@@ -7,6 +7,7 @@ module.exports = {
     try {
       let params = {};
       params.periodid = parseInt(req.body.PERIOD_ID, 10);
+      params.docid = parseInt(req.body.FILTER_DOCUMENT_ID, 10);
       params.depid =
         req.body.USER_TYPE_NAME === "ADMIN" ||
         req.body.USER_TYPE_NAME === "ALL_VIEWER" ||
@@ -72,6 +73,10 @@ module.exports = {
       if (params.depid !== 999 && !isNaN(params.depid)) {
         ListQuery += `\n AND SA.DEPARTMENT_ID = :DEPARTMENT_ID`;
         binds.DEPARTMENT_ID = CheckNullInt(params.depid);
+      }
+      if (params.docid !== 999 && !isNaN(params.docid)) {
+        ListQuery += `\n AND SA.DOCUMENT_ID = :DOCUMENT_ID`;
+        binds.DOCUMENT_ID = CheckNullInt(params.docid);
       }
       if (params.usertype === "ANUZG") {
         ListQuery += `\n AND D.IS_TAB = NVL(:IS_TAB, D.IS_TAB)`;
