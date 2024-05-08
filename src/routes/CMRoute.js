@@ -3,4 +3,5 @@ const CMController = require("../controllers/CMController");
 
 module.exports = (app) => {
   app.post("/CM1AList", CMController.CM1AList);
+  app.post("/CM4List", CMController.CM4List);
 };
