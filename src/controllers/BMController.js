@@ -2008,7 +2008,6 @@ WHERE A.IS_ACTIVE = 1 AND A.IS_ERROR_CONFLICT = 285
 
       getData(req);
 
-      console.log(data, "queryBM7, data");
       const result = await OracleDB.multipleExecute(queryBM7, data);
       return res.send({
         status: 200,
