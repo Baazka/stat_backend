@@ -230,7 +230,7 @@ module.exports = {
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       console.log(params, "params");
@@ -422,7 +422,7 @@ module.exports = {
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
       //console.log(ListQuery, "ListQuery");
 
@@ -665,7 +665,7 @@ module.exports = {
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID  AND BM3.ERROR_ID = FAS.ID AND BM3.TABLE_TYPE_ID = FAS.TABLE_TYPE_ID
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID  AND BM3.ERROR_ID = FAS.ID AND BM3.TABLE_TYPE_ID = FAS.TABLE_TYPE_ID
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -936,7 +936,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM4.ID_7_1 = FAS.ID_7_1
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM4.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM4.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM4.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1023,8 +1023,8 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
       }
 
       getData(req);
-
-      const result = await OracleDB.multipleExecute(queryBM4, data);
+      console.log(req.body, "BM4data");
+      //const result = await OracleDB.multipleExecute(queryBM4, data);
       return res.send({
         status: 200,
         message: "Хадгаллаа.",
@@ -1224,7 +1224,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM5.ID_7_1 = FAS.ID_7_1
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM5.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM5.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM5.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1511,7 +1511,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM6.ID_7_1 = FAS.ID_7_1
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM6.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM6.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM6.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -1800,7 +1800,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM7.ID_7_1 = FAS.ID_7_1
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM7.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM7.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM7.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
@@ -2102,7 +2102,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
+      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM8.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM8.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID AND BM8.ID_7_1 = FAS.ID_7_1
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
