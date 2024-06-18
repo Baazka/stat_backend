@@ -230,10 +230,9 @@ module.exports = {
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM1.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM1.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
-      console.log(params, "params");
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
       const resultStatus = await OracleDB.simpleExecute(AuditStatus, paramID);
@@ -422,9 +421,8 @@ module.exports = {
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM2.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM2.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID 
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
-      //console.log(ListQuery, "ListQuery");
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
       const resultRole = await OracleDB.simpleExecute(ListTeamRole, paramID);
@@ -665,7 +663,7 @@ module.exports = {
         }
       }
 
-      ListQuery += `\n AND FA.PERIOD_ID IN (:P_PERIOD_ID, 4, 3)) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID  AND BM3.ERROR_ID = FAS.ID AND BM3.TABLE_TYPE_ID = FAS.TABLE_TYPE_ID
+      ListQuery += `\n AND FA.PERIOD_ID = :P_PERIOD_ID) FAS ON BM3.AUDIT_ID = FAS.FAS_AUDIT_ID AND BM3.AUDIT_TYPE_ID = FAS.AUDIT_TYPE_ID  AND BM3.ERROR_ID = FAS.ID AND BM3.TABLE_TYPE_ID = FAS.TABLE_TYPE_ID
                     \n ORDER BY FAS.FAS_AUDIT_ID`;
 
       const result = await OracleDB.simpleExecute(ListQuery, params);
