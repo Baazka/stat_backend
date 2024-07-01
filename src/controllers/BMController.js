@@ -2082,7 +2082,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
 
       let params = {};
       params.P_PERIOD_ID = resultFindID.rows[0]?.PERIOD_ID;
-      params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
+      //params.P_DEPARTMENT_ID = resultFindID.rows[0]?.DEPARTMENT_ID;
 
       let ScheduleData = {
         STAT_AUDIT_ID: parseInt(req.body.ID, 10),
@@ -2301,7 +2301,8 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
       ) A ON FA.ID = A.FAS_AUDIT_ID  
       WHERE FA.IS_ACTIVE = 1 AND AE.IS_ACTIVE = 1 AND A.SOLUTION = 319
       AND ((NVL(A.PROCESS_EVALUATION, 0) < 100) OR (NVL(A.AMOUNT,0) - NVL(A.PROCESS_AMOUNT,0)) != 0)
-      AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID`;
+      --AND FA.AUDIT_CHECK_DEP_ID = :P_DEPARTMENT_ID
+      `;
 
       if (!isCheckSchedule) {
         if (
@@ -2792,7 +2793,7 @@ LEFT JOIN AUD_REG.SYSTEM_USER SU ON M.CREATED_BY = SU.USER_ID
             GROUP BY PERSON_ID) PP ON RP.PERSON_ID = PP.PERSON_ID
         WHERE PL.EMP_ROLE_ID IN (1,2,3) AND E.IS_ACTIVE = 1
         `;
-      console.log(isCheckSchedule, "isCheckSchedule");
+
       if (!isCheckSchedule) {
         if (req.body.USER_TYPE_NAME === "ADMIN") {
         } else {
