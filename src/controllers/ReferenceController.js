@@ -293,4 +293,26 @@ module.exports = {
       return errorFunction.saveErrorAndSend(req, res, err);
     }
   },
+  async refEducationTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT EDUCATION_TYPE_ID, EDUCATION_TYPE_NAME, EDUCATION_TYPE_SHORT_NAME FROM AUD_HR.REF_EDUCATION_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
+  async refProfessionTypeList(req, res) {
+    try {
+      const ListQuery = `SELECT PROFESSION_TYPE_ID, PROFESSION_TYPE_NAME FROM AUD_STAT.REF_PROFESSION_TYPE WHERE IS_ACTIVE = 1`;
+
+      const result = await OracleDB.simpleExecute(ListQuery);
+
+      return res.send(result.rows);
+    } catch (err) {
+      return errorFunction.saveErrorAndSend(req, res, err);
+    }
+  },
 };
